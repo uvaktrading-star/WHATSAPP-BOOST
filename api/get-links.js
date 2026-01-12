@@ -4,13 +4,13 @@ if (!mongoose.connections[0].readyState) {
     mongoose.connect(process.env.MONGODB_URI);
 }
 
-// Schema එකට tags ඇතුළත් කරමු
 const GroupSchema = new mongoose.Schema({
     name: String,
     link: String,
     budget: Number,
     owner: String,
     tags: { type: [String], default: [] },
+    type: { type: String, enum: ['group', 'channel'] }, // මේක අනිවාර්යයි
     joinedUsers: { type: [String], default: [] },
     createdAt: { type: Date, default: Date.now }
 });
@@ -21,31 +21,37 @@ export default async function handler(req, res) {
     if (req.method !== 'GET') return res.status(405).send('Method not allowed');
 
     try {
-        const { phone, page = 1, search = "" } = req.query;
-        const limit = 10; // එක පිටුවක පෙන්වන උපරිම ලින්ක් ගණන
+        const { phone, page = 1, search = "", tab = "group" } = req.query; // 'tab' එකත් ගමු
+        const limit = 10;
         const skip = (parseInt(page) - 1) * limit;
 
-        // මූලික Query එක: තමන් ජොයින් වුණු හෝ තමන්ගේම ලින්ක්ස් අයින් කරනවා
+        // 1. මූලික ෆිල්ටර් (තමන්ගේ නොවන, ජොයින් නොවූ, සහ අදාළ ටැබ් එකට ගැලපෙන ඒවා)
         let query = {
             joinedUsers: { $ne: String(phone) },
-            owner: { $ne: String(phone) }
+            owner: { $ne: String(phone) },
+            type: tab // 'group' හෝ 'channel' අනුව filter වෙනවා
         };
 
-        // Search එකක් තිබේ නම් නම හෝ Tags අනුව ෆිල්ටර් කරනවා
+        // 2. සර්ච් එකක් තිබේ නම්
         if (search) {
-            query.$or = [
-                { name: { $regex: search, $options: 'i' } },
-                { tags: { $in: [new RegExp(search, 'i')] } }
+            query.$and = [
+                { joinedUsers: { $ne: String(phone) } },
+                { owner: { $ne: String(phone) } },
+                { type: tab },
+                {
+                    $or: [
+                        { name: { $regex: search, $options: 'i' } },
+                        { tags: { $in: [new RegExp(search, 'i')] } }
+                    ]
+                }
             ];
         }
 
-        // Pagination සහ Sorting සහිතව ලින්ක්ස් ලබා ගැනීම
         const links = await Group.find(query)
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);
 
-        // මුළු ලින්ක්ස් ගණන (පිටු ගණන හැදීමට)
         const totalLinks = await Group.countDocuments(query);
         const totalPages = Math.ceil(totalLinks / limit);
 
