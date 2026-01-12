@@ -11,22 +11,35 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         body { background: var(--bg-dark); min-height: 100vh; color: #fff; overflow-x: hidden; display: flex; flex-direction: column; align-items: center; }
         .stars-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(circle at center, #0a1a2d 0%, #000 100%); }
+        
         header { width: 100%; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; z-index: 100; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); border-bottom: 1px solid var(--glass-border); }
-        .nav-right { display: flex; align-items: center; gap: 15px; }
+        
+        .nav-right { display: flex; align-items: center; gap: 10px; }
+        
+        /* User info style */
+        .user-tag { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; color: #aaa; display: flex; align-items: center; gap: 5px; }
+        .user-tag i { font-size: 0.7rem; color: var(--primary); }
+
         .coin-display { background: rgba(0, 212, 255, 0.15); border: 1px solid var(--primary); padding: 5px 15px; border-radius: 20px; display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer; }
         .coin-display i { color: #ffd700; }
+        
         .signout-btn { background: rgba(255, 75, 43, 0.1); border: 1px solid var(--danger); color: var(--danger); width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; }
+        
         .container { width: 95%; max-width: 600px; margin: 100px auto 140px auto; text-align: center; z-index: 10; }
         .glass-card { background: var(--glass); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 30px; padding: 30px 20px; }
+        
         h1 { font-size: 2rem; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
         .subtitle { font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-bottom: 25px; }
+        
         .tabs { display: flex; gap: 10px; margin-bottom: 25px; justify-content: center; }
         .tab-btn { flex: 1; padding: 12px; border-radius: 15px; border: 1px solid var(--glass-border); background: transparent; color: #fff; cursor: pointer; transition: 0.3s; font-size: 0.9rem; font-weight: 600; }
         .tab-btn.active { background: var(--primary); color: #000; box-shadow: 0 0 15px var(--primary); border-color: var(--primary); }
+        
         .list-item { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 20px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; }
         .item-info { text-align: left; }
         .item-title { font-weight: 600; font-size: 0.95rem; display: block; color: var(--primary); }
         .item-meta { font-size: 0.75rem; color: rgba(255,255,255,0.5); }
+        
         .join-btn { background: var(--primary); color: #000; padding: 8px 20px; border-radius: 20px; text-decoration: none; font-size: 0.85rem; font-weight: 700; cursor: pointer; border: none; }
         .floating-controls { position: fixed; bottom: 85px; right: 20px; display: flex; flex-direction: column; gap: 15px; z-index: 200; }
         .fab-main { width: 55px; height: 55px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #000; font-size: 1.4rem; background: var(--primary); box-shadow: 0 0 20px var(--primary); cursor: pointer; }
@@ -39,14 +52,18 @@
     <div class="stars-container" id="stars"></div>
 
     <header>
-        <div style="font-weight: 600; color: var(--primary);">ZANTA BOOST</div>
+        <div style="font-weight: 600; color: var(--primary); font-size: 1.1rem;">ZANTA</div>
         <div class="nav-right">
-            <div class="signout-btn" onclick="handleSignOut()">
-                <i class="fas fa-sign-out-alt"></i>
+            <div class="user-tag">
+                <i class="fas fa-user"></i>
+                <span id="userPhoneDisplay">...</span>
             </div>
             <div class="coin-display" onclick="location.reload()">
                 <i class="fas fa-coins"></i>
                 <span id="coinCount">...</span>
+            </div>
+            <div class="signout-btn" onclick="handleSignOut()">
+                <i class="fas fa-sign-out-alt"></i>
             </div>
         </div>
     </header>
@@ -81,6 +98,9 @@
                 window.location.href = "login.html";
                 return;
             }
+            // පෝන් නම්බර් එක header එකේ පෙන්වන්න
+            document.getElementById('userPhoneDisplay').innerText = phone;
+            
             fetchUserStats();
             loadLinks();
         };
@@ -93,9 +113,7 @@
                     body: JSON.stringify({ phone, autoLogin: true }) 
                 });
                 const data = await res.json();
-                
                 if (data.success) {
-                    // මෙන්න මෙතන වෙනස: data.user.coins හෝ data.coins දෙකම චෙක් කරනවා
                     const balance = data.user ? data.user.coins : data.coins;
                     document.getElementById('coinCount').innerText = balance;
                 }
@@ -107,7 +125,8 @@
 
         async function loadLinks() {
             try {
-                const res = await fetch('/api/get-links');
+                // මෙතනදී phone number එක query එකක් විදිහට යවනවා filtering කරන්න
+                const res = await fetch(`/api/get-links?phone=${phone}`);
                 const data = await res.json();
                 document.getElementById('loading').style.display = 'none';
 
@@ -131,7 +150,7 @@
             });
 
             if (filtered.length === 0) {
-                list.innerHTML = `<p style="color:gray; padding:20px;">No ${type}s available.</p>`;
+                list.innerHTML = `<p style="color:gray; padding:20px;">No ${type}s available for you right now.</p>`;
                 return;
             }
 
@@ -156,7 +175,6 @@
 
         async function handleJoin(link, linkId) {
             window.open(link, "_blank");
-
             try {
                 const res = await fetch('/api/reward', {
                     method: 'POST',
@@ -166,9 +184,9 @@
                 const data = await res.json();
                 
                 if(data.success) {
-                    // මෙතන කෙලින්ම සර්වර් එකෙන් එන Balance එක දානවා
                     document.getElementById('coinCount').innerText = data.newBalance;
                     alert("Success: 1 Coin earned!");
+                    // ජොයින් වුණු එක ලිස්ට් එකෙන් අයින් කරන්න ආයේ load කරනවා
                     loadLinks();
                 } else {
                     alert(data.message || "Reward failed.");
@@ -177,7 +195,7 @@
         }
 
         function handleSignOut() {
-            if(confirm("Sign out?")) {
+            if(confirm("Sign out from " + phone + "?")) {
                 localStorage.clear();
                 window.location.href = "login.html";
             }
