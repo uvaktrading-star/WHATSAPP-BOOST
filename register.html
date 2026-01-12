@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join ZANTA BOOST | Register</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #00d4ff;
+            --bg-dark: #000;
+            --glass: rgba(0, 212, 255, 0.05);
+            --glass-border: rgba(182, 227, 255, 0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { 
+            background: var(--bg-dark); 
+            height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .stars-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background: radial-gradient(circle at center, #0a1a2d 0%, #000 100%);
+        }
+
+        .login-card {
+            width: 90%;
+            max-width: 400px;
+            background: var(--glass);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0, 191, 255, 0.1);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 { font-size: 1.8rem; color: var(--primary); margin-bottom: 10px; letter-spacing: 1px; }
+        p { font-size: 0.85rem; color: rgba(255,255,255,0.5); margin-bottom: 30px; }
+
+        .input-group { position: relative; margin-bottom: 20px; }
+        .input-group i {
+            position: absolute; left: 15px; top: 50%; transform: translateY(-50%);
+            color: var(--primary); font-size: 1.1rem;
+        }
+
+        input {
+            width: 100%; background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border); padding: 15px 15px 15px 45px;
+            border-radius: 15px; color: #fff; outline: none; transition: 0.3s;
+        }
+        input:focus { border-color: var(--primary); background: rgba(0, 212, 255, 0.05); }
+
+        .auth-btn {
+            width: 100%; background: var(--primary); color: #000;
+            padding: 15px; border: none; border-radius: 15px;
+            font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.3s; margin-top: 10px;
+        }
+        .auth-btn:hover { box-shadow: 0 0 20px var(--primary); transform: scale(1.02); }
+
+        .footer-text { margin-top: 20px; font-size: 0.85rem; color: rgba(255,255,255,0.4); }
+        .footer-text a { color: var(--primary); text-decoration: none; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <div class="stars-container"></div>
+
+    <div class="login-card">
+        <h1>GET STARTED</h1>
+        <p>Create an account to Boost your groups</p>
+
+        <div class="input-group">
+            <i class="fas fa-phone"></i>
+            <input type="number" id="phone" placeholder="WhatsApp Number (eg: 9477...)">
+        </div>
+
+        <div class="input-group">
+            <i class="fas fa-lock"></i>
+            <input type="password" id="pass" placeholder="Create Password">
+        </div>
+
+        <button class="auth-btn" onclick="handleAuth()">REGISTER</button>
+
+        <p class="footer-text">
+            Already have an account? <a href="login.html">Login</a>
+        </p>
+    </div>
+
+    <script>
+        async function handleAuth() {
+            const phone = document.getElementById('phone').value;
+            const password = document.getElementById('pass').value;
+
+            if(!phone || !password) {
+                alert("Please fill all fields!");
+                return;
+            }
+
+            const btn = document.querySelector('.auth-btn');
+            btn.innerText = "Processing...";
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/auth', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone, password })
+                });
+
+                const data = await res.json();
+
+                if(data.success) {
+                    alert("Registration Successful! Please login.");
+                    // ✅ Redirecting to login.html as requested
+                    window.location.href = "login.html";
+                } else {
+                    alert(data.message);
+                    btn.innerText = "REGISTER";
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                alert("Server error! Please try again.");
+                btn.innerText = "REGISTER";
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
