@@ -1,47 +1,66 @@
 import mongoose from 'mongoose';
 
-// MongoDB Connection
 if (!mongoose.connections[0].readyState) {
     mongoose.connect(process.env.MONGODB_URI);
 }
 
-// User Model එක හදනවා (දැනටමත් තියෙනවා නම් ඒකම ගන්නවා)
-const UserSchema = new mongoose.Schema({
+// Models නිර්වචනය (දැනටමත් තිබේ නම් ඒවා භාවිතා කරයි)
+const User = mongoose.models.User || mongoose.model('User', new mongoose.Schema({
     phone: String,
     coins: { type: Number, default: 0 }
-});
+}));
 
-const User = mongoose.models.User || mongoose.model('User', UserSchema);
+const Group = mongoose.models.Group || mongoose.model('Group', new mongoose.Schema({
+    name: String,
+    link: String,
+    budget: Number,
+    owner: String
+}));
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ message: 'Method not allowed' });
 
-    const { phone } = req.body;
+    const { phone, linkId } = req.body; // Frontend එකෙන් phone එකයි linkId එකයි එවනවා
 
-    if (!phone) {
-        return res.status(400).json({ success: false, message: "Phone number required" });
+    if (!phone || !linkId) {
+        return res.status(400).json({ success: false, message: "Missing data" });
     }
 
     try {
-        // 1. යූසර්ව හොයාගන්නවා (Phone number එක String එකක් විදිහටම චෙක් කරනවා)
+        // 1. කොයින්ස් ගන්නා යූසර්ව සොයාගැනීම
         const user = await User.findOne({ phone: String(phone) });
+        if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
-        if (!user) {
-            return res.status(404).json({ success: false, message: "User not found" });
+        // 2. අදාළ ලින්ක් එක සොයාගැනීම
+        const group = await Group.findById(linkId);
+        
+        if (group) {
+            // Budget එකෙන් 1ක් අඩු කරනවා
+            group.budget -= 1;
+
+            if (group.budget <= 0) {
+                // Budget එක 0 වුණොත් ලින්ක් එක DB එකෙන් මකනවා
+                await Group.findByIdAndDelete(linkId);
+            } else {
+                // නැත්නම් ඉතිරි Budget එක සේව් කරනවා
+                await group.save();
+            }
+
+            // 3. යූසර්ට reward කොයින් එක දෙනවා
+            user.coins = (user.coins || 0) + 1;
+            await user.save();
+
+            return res.status(200).json({ 
+                success: true, 
+                newBalance: user.coins,
+                message: "Reward added and budget updated"
+            });
+        } else {
+            return res.status(404).json({ success: false, message: "Link expired or not found" });
         }
 
-        // 2. කොයින් 1ක් එකතු කරනවා
-        user.coins = (user.coins || 0) + 1;
-        await user.save();
-
-        // 3. සාර්ථකයි නම් අලුත් Balance එක යවනවා
-        return res.status(200).json({ 
-            success: true, 
-            newBalance: user.coins 
-        });
-
     } catch (error) {
-        console.error("Reward Error Details:", error);
-        return res.status(500).json({ success: false, message: "Database Error", error: error.message });
+        console.error("Reward Error:", error);
+        return res.status(500).json({ success: false, message: "Server Error" });
     }
 }
