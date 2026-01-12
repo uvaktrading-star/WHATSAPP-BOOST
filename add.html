@@ -3,70 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Group | ZANTA BOOST</title>
+    <title>Add Link | ZANTA BOOST</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --primary: #00d4ff; --bg-dark: #000; }
-        body { background: var(--bg-dark); color: #fff; font-family: 'Poppins', sans-serif; padding: 20px; }
-        .container { max-width: 500px; margin: auto; background: rgba(255,255,255,0.05); padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
-        h2 { color: var(--primary); text-align: center; margin-bottom: 20px; }
-        .input-group { margin-bottom: 15px; }
-        label { display: block; font-size: 0.9rem; margin-bottom: 5px; color: #ccc; }
-        input, select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #333; background: #111; color: #fff; outline: none; }
-        input:focus, select:focus { border-color: var(--primary); }
-        .btn { width: 100%; padding: 15px; background: var(--primary); color: #000; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; margin-top: 10px; }
-        .back-btn { display: block; text-align: center; margin-top: 15px; color: #777; text-decoration: none; font-size: 0.9rem; }
-        .tag-hint { font-size: 0.75rem; color: #666; margin-top: 3px; }
-        option { background: #111; }
+        :root { --primary: #00d4ff; --bg-dark: #000; --glass: rgba(255, 255, 255, 0.05); }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--bg-dark); color: #fff; font-family: 'Poppins', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+        .container { width: 100%; max-width: 450px; background: var(--glass); padding: 30px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); }
+        h2 { color: var(--primary); text-align: center; margin-bottom: 25px; font-weight: 600; letter-spacing: 1px; }
+        .input-group { margin-bottom: 18px; }
+        label { display: block; font-size: 0.85rem; margin-bottom: 8px; color: #aaa; }
+        input, select { width: 100%; padding: 12px 15px; border-radius: 12px; border: 1px solid #333; background: rgba(0,0,0,0.3); color: #fff; outline: none; font-size: 0.9rem; transition: 0.3s; }
+        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 10px rgba(0, 212, 255, 0.2); }
+        .btn { width: 100%; padding: 15px; background: var(--primary); color: #000; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; margin-top: 15px; font-size: 1rem; transition: 0.3s; }
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .back-btn { display: block; text-align: center; margin-top: 20px; color: #666; text-decoration: none; font-size: 0.85rem; }
+        .tag-hint { font-size: 0.7rem; color: #555; margin-top: 5px; }
+        option { background: #111; color: #fff; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>🚀 BOOST YOUR LINK</h2>
+        <h2>🚀 BOOST LINK</h2>
         
+        <div class="input-group">
+            <label>Link Type</label>
+            <select id="linkType">
+                <option value="group">WhatsApp Group</option>
+                <option value="channel">WhatsApp Channel</option>
+            </select>
+        </div>
+
         <div class="input-group">
             <label>Group or Channel Name</label>
             <input type="text" id="groupName" placeholder="e.g. SL Tech Community">
         </div>
 
         <div class="input-group">
-            <label>WhatsApp/Telegram Link</label>
+            <label>Link URL</label>
             <input type="url" id="groupLink" placeholder="https://chat.whatsapp.com/...">
         </div>
 
         <div class="input-group">
             <label>Tags (Optional)</label>
-            <input type="text" id="tags" placeholder="e.g. funny, tech, jobs, movies">
+            <input type="text" id="tags" placeholder="e.g. movies, tech, gaming">
             <p class="tag-hint">Comma ( , ) මගින් වෙන් කර ඇතුළත් කරන්න.</p>
         </div>
 
         <div class="input-group">
-            <label>Select Boost Package</label>
+            <label>Promotion Package</label>
             <select id="package">
-                <option value="5">Basic: 5 Invites (5 Coins)</option>
-                <option value="20">Standard: 10 Invites (20 Coins)</option>
-                <option value="50">Premium: 20 Invites (50 Coins)</option>
-                <option value="100">Premium plus: 100 Invites (100 Coins)</option>
+                <option value="5">Basic: 5 Members (5 Coins)</option>
+                <option value="20">Standard: 20 Members (20 Coins)</option>
+                <option value="50">Premium: 50 Members (50 Coins)</option>
+                <option value="100">Gold: 100 Members (100 Coins)</option>
             </select>
         </div>
 
-        <button class="btn" onclick="submitLink()">SUBMIT LINK</button>
+        <button class="btn" id="submitBtn" onclick="submitLink()">SUBMIT LINK</button>
         <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
     </div>
 
     <script>
         async function submitLink() {
-            const name = document.getElementById('groupName').value;
-            const link = document.getElementById('groupLink').value;
-            const tags = document.getElementById('tags').value; // Tags අගය ගන්නවා
+            const type = document.getElementById('linkType').value;
+            const name = document.getElementById('groupName').value.trim();
+            const link = document.getElementById('groupLink').value.trim();
+            const tags = document.getElementById('tags').value.trim();
             const packageVal = document.getElementById('package').value;
             const phone = localStorage.getItem('userPhone');
 
-            if(!name || !link) return alert("Please fill all fields!");
+            if(!name || !link) return alert("Please fill name and link fields!");
 
-            const btn = document.querySelector('.btn');
+            const btn = document.getElementById('submitBtn');
             btn.innerText = "Processing...";
             btn.disabled = true;
 
@@ -77,7 +89,8 @@
                     body: JSON.stringify({ 
                         name, 
                         link, 
-                        tags, // Tags සර්වර් එකට යවනවා
+                        tags,
+                        type, // Group ද Channel ද කියලා යවනවා
                         budget: parseInt(packageVal), 
                         phone 
                     })
@@ -85,7 +98,7 @@
 
                 const data = await res.json();
                 if(data.success) {
-                    alert("Link Added Successfully!");
+                    alert("Campaign started successfully!");
                     window.location.href = "index.html";
                 } else {
                     alert(data.message);
@@ -93,7 +106,7 @@
                     btn.disabled = false;
                 }
             } catch (err) {
-                alert("Server error!");
+                alert("Server connection failed!");
                 btn.innerText = "SUBMIT LINK";
                 btn.disabled = false;
             }
