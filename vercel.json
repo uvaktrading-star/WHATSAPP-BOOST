@@ -8,6 +8,10 @@
     {
       "source": "/api/login",
       "destination": "/api/login.js"
+    },
+    {
+      "source": "/api/add-link",
+      "destination": "/api/add-link.js"
     }
   ],
   "headers": [
@@ -21,3 +25,4 @@
     }
   ]
 }
+
