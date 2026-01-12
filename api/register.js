@@ -37,7 +37,7 @@ export default async function handler(req, res) {
         const newUser = new User({
             phone,
             password,
-            coins: 10
+            coins: 0
         });
 
         await newUser.save();
