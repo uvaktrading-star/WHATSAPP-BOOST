@@ -8,6 +8,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
+    <script src="https://pl28408717.effectivegatecpm.com/00/6e/30/006e304b5ab96fb51a608263d55d1a7e.js"></script>
+    
     <style>
         :root {
             --primary: #00d4ff;
@@ -20,18 +22,23 @@
         
         body { 
             background: var(--bg-dark); 
-            height: 100vh; 
+            min-height: 100vh; 
             display: flex; 
+            flex-direction: column;
             align-items: center; 
             justify-content: center; 
             color: #fff;
-            overflow: hidden;
+            overflow-x: hidden;
         }
 
         .stars-container {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
             background: radial-gradient(circle at center, #0a1a2d 0%, #000 100%);
         }
+
+        /* Ad Styling */
+        .top-ad { margin-bottom: 20px; z-index: 10; }
+        .bottom-native-ad { margin-top: 20px; width: 100%; max-width: 400px; z-index: 10; }
 
         .login-card {
             width: 90%;
@@ -45,6 +52,7 @@
             text-align: center;
             box-shadow: 0 15px 35px rgba(0, 191, 255, 0.1);
             animation: fadeIn 0.8s ease-out;
+            z-index: 5;
         }
 
         @keyframes fadeIn {
@@ -83,6 +91,13 @@
 
     <div class="stars-container" id="stars"></div>
 
+    <div class="top-ad">
+        <script>
+            atOptions = { 'key' : 'c8046fb4f58871287e3444e872b11763', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };
+        </script>
+        <script src="https://www.highperformanceformat.com/c8046fb4f58871287e3444e872b11763/invoke.js"></script>
+    </div>
+
     <div class="login-card">
         <h1>WELCOME BACK</h1>
         <p>Login to manage your boosted links</p>
@@ -103,6 +118,13 @@
             Don't have an account? <a href="register.html">Register Now</a>
         </p>
     </div>
+
+    <div class="bottom-native-ad">
+        <script async="async" data-cfasync="false" src="https://pl28409004.effectivegatecpm.com/04fde588c8c3c4ebc19bb82d26eddcf6/invoke.js"></script>
+        <div id="container-04fde588c8c3c4ebc19bb82d26eddcf6"></div>
+    </div>
+
+    <script src="https://pl28408894.effectivegatecpm.com/38/f2/4c/38f24ce2699abee8a53ce4302ea94cb2.js"></script>
 
     <script>
         // --- 1. Simple Background Animation ---
@@ -134,7 +156,6 @@
             btn.disabled = true;
 
             try {
-                // 🚀 අපි දැන් යවන්නේ /api/login endpoint එකට
                 const res = await fetch('/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -144,13 +165,10 @@
                 const data = await res.json();
 
                 if(data.success) {
-                    // Success වුණොත් විතරක් Local Storage එකේ Save කරනවා
                     localStorage.setItem('userPhone', phone);
                     localStorage.setItem('coins', data.coins);
-                    
                     window.location.href = "index.html"; 
                 } else {
-                    // "User not found" හෝ "Wrong Password" message එක පෙන්වනවා
                     alert(data.message || "Invalid Login Details!");
                     btn.innerText = "LOGIN";
                     btn.disabled = false;
