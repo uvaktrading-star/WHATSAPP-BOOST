@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --primary: #00d4ff; --bg-dark: #000; --glass: rgba(255, 255, 255, 0.05); }
+        :root { --primary: #00d4ff; --bg-dark: #000; --glass: rgba(255, 255, 255, 0.05); --warning: #ffd700; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: var(--bg-dark); color: #fff; font-family: 'Poppins', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
         .container { width: 100%; max-width: 450px; background: var(--glass); padding: 30px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); }
@@ -16,11 +16,16 @@
         label { display: block; font-size: 0.85rem; margin-bottom: 8px; color: #aaa; }
         input, select { width: 100%; padding: 12px 15px; border-radius: 12px; border: 1px solid #333; background: rgba(0,0,0,0.3); color: #fff; outline: none; font-size: 0.9rem; transition: 0.3s; }
         input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 10px rgba(0, 212, 255, 0.2); }
+        
+        /* New Style for Verification Input */
+        .verification-input { border: 1px dashed var(--warning) !important; color: var(--warning) !important; font-weight: bold; }
+        
         .btn { width: 100%; padding: 15px; background: var(--primary); color: #000; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; margin-top: 15px; font-size: 1rem; transition: 0.3s; }
         .btn:active { transform: scale(0.98); }
         .btn:disabled { opacity: 0.6; cursor: not-allowed; }
         .back-btn { display: block; text-align: center; margin-top: 20px; color: #666; text-decoration: none; font-size: 0.85rem; }
         .tag-hint { font-size: 0.7rem; color: #555; margin-top: 5px; }
+        .important-hint { font-size: 0.75rem; color: var(--warning); margin-top: 5px; font-weight: 400; line-height: 1.4; }
         option { background: #111; color: #fff; }
     </style>
 </head>
@@ -48,6 +53,12 @@
         </div>
 
         <div class="input-group">
+            <label style="color: var(--warning);">Verification Code (මුරපදය)</label>
+            <input type="text" id="verificationCode" class="verification-input" placeholder="e.g. ZANTA77">
+            <p class="important-hint">⚠️ මෙම මුරපදය ඔබගේ WhatsApp Group/Channel එකේ Description එකේ අනිවාර්යයෙන්ම සඳහන් කරන්න.</p>
+        </div>
+
+        <div class="input-group">
             <label>Tags (Optional)</label>
             <input type="text" id="tags" placeholder="e.g. movies, tech, gaming">
             <p class="tag-hint">Comma ( , ) මගින් වෙන් කර ඇතුළත් කරන්න.</p>
@@ -68,15 +79,25 @@
     </div>
 
     <script>
+        // පේජ් එක ලෝඩ් වෙද්දී එන පණිවිඩය
+        window.onload = function() {
+            setTimeout(() => {
+                alert("අවධානයට:\n\nඔබ ඔබේ Group/Channel එක තුළ යම්කිසි මුරපදයක් (Verification Code) ඇතුළත් කර, එම මුරපදයම මෙහි ඇතුළත් කිරීම අනිවාර්ය වේ. නැතහොත් පරිශීලකයින්ට එය තහවුරු කිරීමට නොහැකි වනු ඇත.");
+            }, 500);
+        };
+
         async function submitLink() {
             const type = document.getElementById('linkType').value;
             const name = document.getElementById('groupName').value.trim();
             const link = document.getElementById('groupLink').value.trim();
+            const verificationCode = document.getElementById('verificationCode').value.trim();
             const tags = document.getElementById('tags').value.trim();
             const packageVal = document.getElementById('package').value;
             const phone = localStorage.getItem('userPhone');
 
-            if(!name || !link) return alert("Please fill name and link fields!");
+            if(!name || !link || !verificationCode) {
+                return alert("Please fill all required fields, including the Verification Code!");
+            }
 
             const btn = document.getElementById('submitBtn');
             btn.innerText = "Processing...";
@@ -89,8 +110,9 @@
                     body: JSON.stringify({ 
                         name, 
                         link, 
+                        verificationCode, // මෙන්න මේක සර්වර් එකට යවනවා
                         tags,
-                        type, // Group ද Channel ද කියලා යවනවා
+                        type, 
                         budget: parseInt(packageVal), 
                         phone 
                     })
