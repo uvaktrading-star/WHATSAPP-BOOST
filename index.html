@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --primary: #00d4ff; --bg-dark: #000; --glass: rgba(0, 212, 255, 0.05); --glass-border: rgba(182, 227, 255, 0.15); --danger: #ff4b2b; --warning: #ffd700; }
+        :root { --primary: #00d4ff; --bg-dark: #000; --glass: rgba(0, 212, 255, 0.05); --glass-border: rgba(182, 227, 255, 0.15); --danger: #ff4b2b; --warning: #ffd700; --success: #28a745; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         body { background: var(--bg-dark); min-height: 100vh; color: #fff; overflow-x: hidden; display: flex; flex-direction: column; align-items: center; }
         .stars-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(circle at center, #0a1a2d 0%, #000 100%); }
@@ -17,7 +17,6 @@
         .nav-right { display: flex; align-items: center; gap: 10px; position: relative; }
         .coin-display { background: rgba(0, 212, 255, 0.15); border: 1px solid var(--primary); padding: 5px 15px; border-radius: 20px; display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer; }
         
-        /* Menu Styling */
         .menu-btn { font-size: 1.2rem; cursor: pointer; color: #fff; padding: 5px; }
         .menu-dropdown { position: absolute; top: 45px; right: 0; background: #111; border: 1px solid var(--glass-border); border-radius: 12px; width: 180px; display: none; flex-direction: column; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
         .menu-dropdown.active { display: flex; }
@@ -46,10 +45,12 @@
         .item-tags { font-size: 0.65rem; color: var(--warning); display: block; }
         .item-meta { font-size: 0.7rem; color: rgba(255,255,255,0.4); }
         
-        .btn-action { padding: 8px 15px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; cursor: pointer; border: none; min-width: 85px; }
+        .btn-action { padding: 8px 15px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; cursor: pointer; border: none; min-width: 85px; transition: 0.2s; }
         .join-btn { background: var(--primary); color: #000; }
         .follow-btn { background: var(--warning); color: #000; }
+        .claim-btn { background: var(--success); color: #fff; box-shadow: 0 0 10px var(--success); }
         .delete-btn { background: rgba(255, 75, 43, 0.1); color: var(--danger); border: 1px solid var(--danger); }
+        .wait-btn { background: #333; color: #888; cursor: not-allowed; }
         
         .pagination { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 15px; }
         .nav-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: white; padding: 5px 12px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; }
@@ -121,6 +122,15 @@
         window.onload = function() {
             if (!phone) { window.location.href = "login.html"; return; }
             document.getElementById('displayPhone').innerText = phone;
+            
+            // --- Warning Popup Logic ---
+            if (localStorage.getItem('pendingWarning') === 'true') {
+                setTimeout(() => {
+                    alert("⚠️ අවවාදයයි:\n\nඔබ මෙහි වංචාවක් හෝ වෙනත් නුසුදුසු ක්‍රියාවක් සිදු කරන්නේ නම් ඔබගේ ගිණුම වහාම අත්හිටුවනු ඇත.");
+                    localStorage.removeItem('pendingWarning');
+                }, 800);
+            }
+
             fetchUserStats();
             loadLinks();
         };
@@ -129,13 +139,10 @@
             document.getElementById('menuDropdown').classList.toggle('active');
         }
 
-        // Close menu when clicking outside
         window.onclick = function(event) {
             if (!event.target.matches('.menu-btn') && !event.target.matches('.fa-bars')) {
                 const dropdown = document.getElementById('menuDropdown');
-                if (dropdown.classList.contains('active')) {
-                    dropdown.classList.remove('active');
-                }
+                if (dropdown.classList.contains('active')) { dropdown.classList.remove('active'); }
             }
         }
 
@@ -158,14 +165,12 @@
             const listContainer = document.getElementById('itemList');
             const loading = document.getElementById('loading');
             const countDisplay = document.getElementById('countDisplay');
-            
             loading.style.display = 'block';
             listContainer.innerHTML = '';
             
             try {
                 const baseUrl = currentTab === 'my' ? '/api/my-links' : '/api/get-links';
                 const url = `${baseUrl}?phone=${phone}&page=${currentPage}&search=${encodeURIComponent(searchQuery)}&tab=${currentTab}`;
-                
                 const res = await fetch(url);
                 const data = await res.json();
                 loading.style.display = 'none';
@@ -174,7 +179,6 @@
                     const typeText = currentTab === 'my' ? 'Campaigns' : (currentTab === 'group' ? 'Groups' : 'Channels');
                     const total = data.totalLinks || data.links.length;
                     countDisplay.innerText = `${total} ${typeText} Available`;
-                    
                     renderLinks(data.links);
                     updatePagination(data.currentPage, data.totalPages);
                 }
@@ -209,55 +213,47 @@
                         </div>
                         ${isMyLink ? 
                             `<button class="btn-action delete-btn" onclick="handleDelete('${item._id}')">REMOVE</button>` : 
-                            `<button class="btn-action ${btnClass}" onclick="handleJoin('${item.link}', '${item._id}')">${btnLabel}</button>`
+                            `<button id="btn-${item._id}" class="btn-action ${btnClass}" onclick="startJoinProcess('${item.link}', '${item._id}')">${btnLabel}</button>`
                         }
                     </div>
                 `;
             });
         }
 
-        function switchTab(type) {
-            currentTab = type;
-            currentPage = 1;
-            searchQuery = "";
-            document.getElementById('searchInput').value = "";
+        // --- Super Logic: Join Verification ---
+        function startJoinProcess(link, linkId) {
+            const btn = document.getElementById(`btn-${linkId}`);
             
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(`tab-${type}`).classList.add('active');
-
-            const addBtn = document.getElementById('addBtn');
-            const searchBar = document.getElementById('searchBar');
-            
-            if(type === 'my') {
-                addBtn.style.display = 'flex';
-                searchBar.style.visibility = 'hidden'; 
-            } else {
-                addBtn.style.display = 'none';
-                searchBar.style.visibility = 'visible';
-            }
-            
-            loadLinks();
-        }
-
-        function updatePagination(current, total) {
-            document.getElementById('pageNumber').innerText = `${current} / ${total || 1}`;
-            document.getElementById('prevBtn').disabled = (current <= 1);
-            document.getElementById('nextBtn').disabled = (current >= total);
-        }
-
-        function changePage(step) {
-            currentPage += step;
-            loadLinks();
-        }
-
-        function handleSearch() {
-            searchQuery = document.getElementById('searchInput').value;
-            currentPage = 1;
-            loadLinks();
-        }
-
-        async function handleJoin(link, linkId) {
+            // 1. WhatsApp Link එක Open කරනවා
             window.open(link, "_blank");
+            
+            // 2. Button එක Lock කරලා Timer එක පටන් ගන්නවා
+            btn.disabled = true;
+            btn.classList.remove('join-btn', 'follow-btn');
+            btn.classList.add('wait-btn');
+            
+            let timeLeft = 10;
+            const timer = setInterval(() => {
+                btn.innerText = `WAIT ${timeLeft}s`;
+                timeLeft--;
+                
+                if (timeLeft < 0) {
+                    clearInterval(timer);
+                    // 3. Claim Button එක පෙන්වනවා
+                    btn.disabled = false;
+                    btn.innerText = "CLAIM";
+                    btn.classList.remove('wait-btn');
+                    btn.classList.add('claim-btn');
+                    btn.onclick = () => finalClaim(linkId);
+                }
+            }, 1000);
+        }
+
+        async function finalClaim(linkId) {
+            const btn = document.getElementById(`btn-${linkId}`);
+            btn.innerText = "...";
+            btn.disabled = true;
+
             try {
                 const res = await fetch('/api/reward', {
                     method: 'POST',
@@ -267,9 +263,45 @@
                 const data = await res.json();
                 if(data.success) {
                     document.getElementById('coinCount').innerText = data.newBalance;
+                    loadLinks(); // Refresh list to remove joined link
+                } else {
+                    alert(data.message);
                     loadLinks();
                 }
             } catch (err) { console.error(err); }
+        }
+
+        function switchTab(type) {
+            currentTab = type;
+            currentPage = 1;
+            searchQuery = "";
+            document.getElementById('searchInput').value = "";
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`tab-${type}`).classList.add('active');
+            const addBtn = document.getElementById('addBtn');
+            const searchBar = document.getElementById('searchBar');
+            if(type === 'my') {
+                addBtn.style.display = 'flex';
+                searchBar.style.visibility = 'hidden'; 
+            } else {
+                addBtn.style.display = 'none';
+                searchBar.style.visibility = 'visible';
+            }
+            loadLinks();
+        }
+
+        function updatePagination(current, total) {
+            document.getElementById('pageNumber').innerText = `${current} / ${total || 1}`;
+            document.getElementById('prevBtn').disabled = (current <= 1);
+            document.getElementById('nextBtn').disabled = (current >= total);
+        }
+
+        function changePage(step) { currentPage += step; loadLinks(); }
+
+        function handleSearch() {
+            searchQuery = document.getElementById('searchInput').value;
+            currentPage = 1;
+            loadLinks();
         }
 
         async function handleDelete(linkId) {
