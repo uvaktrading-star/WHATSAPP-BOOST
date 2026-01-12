@@ -6,12 +6,14 @@
     <title>ZANTA BOOST | Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <script src="https://pl28408717.effectivegatecpm.com/00/6e/30/006e304b5ab96fb51a608263d55d1a7e.js"></script>
+
     <style>
         :root { --primary: #00d4ff; --bg-dark: #000; --glass: rgba(0, 212, 255, 0.05); --glass-border: rgba(182, 227, 255, 0.15); --danger: #ff4b2b; --warning: #ffd700; --success: #28a745; --overlay: rgba(0, 0, 0, 0.85); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         body { background: var(--bg-dark); min-height: 100vh; color: #fff; overflow-x: hidden; display: flex; flex-direction: column; align-items: center; }
         
-        /* Modal Style */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--overlay); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 2000; opacity: 0; transition: 0.3s; }
         .modal-card { background: #111; border: 1px solid var(--danger); padding: 30px; border-radius: 25px; max-width: 400px; width: 90%; text-align: center; transform: scale(0.8); transition: 0.3s; }
         .modal-overlay.active { display: flex; opacity: 1; }
@@ -33,8 +35,13 @@
         .menu-item:hover { background: rgba(255,255,255,0.05); }
         .menu-item i { width: 20px; }
         .menu-item.logout { color: var(--danger); }
-        .container { width: 95%; max-width: 600px; margin: 90px auto 140px auto; text-align: center; z-index: 10; }
+        .container { width: 95%; max-width: 600px; margin: 90px auto 20px auto; text-align: center; z-index: 10; }
         .glass-card { background: var(--glass); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 30px; padding: 20px 15px; }
+        
+        /* Ad Containers */
+        .banner-ad-top { margin: 15px 0; display: flex; justify-content: center; }
+        .native-ad-bottom { margin-top: 20px; padding: 10px; border-top: 1px solid var(--glass-border); width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+
         .search-container { max-width: 300px; margin: 0 auto 20px auto; position: relative; display: flex; gap: 5px; transition: 0.3s; }
         .search-input { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 12px; padding: 8px 12px; color: white; outline: none; font-size: 0.8rem; }
         .search-btn { background: var(--primary); color: black; border: none; border-radius: 10px; padding: 0 12px; cursor: pointer; }
@@ -96,6 +103,13 @@
     </header>
 
     <div class="container">
+        <div class="banner-ad-top">
+            <script>
+                atOptions = { 'key' : 'c8046fb4f58871287e3444e872b11763', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };
+            </script>
+            <script src="https://www.highperformanceformat.com/c8046fb4f58871287e3444e872b11763/invoke.js"></script>
+        </div>
+
         <div class="glass-card">
             <div class="stats-bar" id="countDisplay">Initializing...</div>
 
@@ -119,9 +133,19 @@
                 <button class="nav-btn" id="nextBtn" onclick="changePage(1)"><i class="fas fa-arrow-right"></i></button>
             </div>
         </div>
+
+        <div class="native-ad-bottom">
+            <p style="font-size: 0.6rem; color: #444; margin-bottom: 5px;">ADVERTISEMENT</p>
+            <script async="async" data-cfasync="false" src="https://pl28409004.effectivegatecpm.com/04fde588c8c3c4ebc19bb82d26eddcf6/invoke.js"></script>
+            <div id="container-04fde588c8c3c4ebc19bb82d26eddcf6"></div>
+            
+            <div id="container-04fde588c8c3c4ebc19bb82d26eddcf6"></div>
+        </div>
     </div>
 
     <div id="addBtn" class="fab-add" onclick="window.location.href='add.html'"><i class="fas fa-plus"></i></div>
+
+    <script src="https://pl28408894.effectivegatecpm.com/38/f2/4c/38f24ce2699abee8a53ce4302ea94cb2.js"></script>
 
     <script>
         const phone = localStorage.getItem('userPhone');
@@ -129,7 +153,6 @@
         let currentPage = 1;
         let searchQuery = "";
 
-        // Modal Control Functions
         function showWarningModal() {
             const modal = document.getElementById('warningModal');
             modal.style.display = 'flex';
@@ -146,7 +169,6 @@
             if (!phone) { window.location.href = "login.html"; return; }
             document.getElementById('displayPhone').innerText = phone;
             
-            // Check for pending warning from login
             if (localStorage.getItem('pendingWarning') === 'true') {
                 setTimeout(() => {
                     showWarningModal();
