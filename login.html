@@ -81,7 +81,7 @@
 </head>
 <body>
 
-    <div class="stars-container"></div>
+    <div class="stars-container" id="stars"></div>
 
     <div class="login-card">
         <h1>WELCOME BACK</h1>
@@ -97,7 +97,7 @@
             <input type="password" id="pass" placeholder="Password">
         </div>
 
-        <button class="auth-btn" onclick="handleLogin()">LOGIN</button>
+        <button class="auth-btn" id="loginBtn" onclick="handleLogin()">LOGIN</button>
 
         <p class="footer-text">
             Don't have an account? <a href="register.html">Register Now</a>
@@ -105,22 +105,37 @@
     </div>
 
     <script>
+        // --- 1. Simple Background Animation ---
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 40; i++) {
+            const star = document.createElement('div');
+            star.style.position = 'absolute';
+            star.style.background = 'rgba(182, 227, 255, 0.3)';
+            star.style.width = Math.random() * 3 + 'px';
+            star.style.height = star.style.width;
+            star.style.borderRadius = '50%';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            starsContainer.appendChild(star);
+        }
+
+        // --- 2. Login Logic ---
         async function handleLogin() {
             const phone = document.getElementById('phone').value;
             const password = document.getElementById('pass').value;
+            const btn = document.getElementById('loginBtn');
 
             if(!phone || !password) {
                 alert("Please enter both number and password!");
                 return;
             }
 
-            const btn = document.querySelector('.auth-btn');
             btn.innerText = "Verifying...";
             btn.disabled = true;
 
             try {
-                // api/auth.js එකට දත්ත යවනවා
-                const res = await fetch('/api/auth', {
+                // 🚀 අපි දැන් යවන්නේ /api/login endpoint එකට
+                const res = await fetch('/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ phone, password })
@@ -129,18 +144,20 @@
                 const data = await res.json();
 
                 if(data.success) {
-                    // Database එකෙන් එන Coins ගාණයි නම්බර් එකයි localStorage එකේ දානවා
+                    // Success වුණොත් විතරක් Local Storage එකේ Save කරනවා
                     localStorage.setItem('userPhone', phone);
                     localStorage.setItem('coins', data.coins);
                     
-                    window.location.href = "index.html"; // කෙලින්ම Dashboard එකට
+                    window.location.href = "index.html"; 
                 } else {
-                    alert(data.message); // Password වැරදියි නම් මෙතනින් කියනවා
+                    // "User not found" හෝ "Wrong Password" message එක පෙන්වනවා
+                    alert(data.message || "Invalid Login Details!");
                     btn.innerText = "LOGIN";
                     btn.disabled = false;
                 }
             } catch (err) {
-                alert("Connection Error! Check your internet.");
+                console.error(err);
+                alert("Connection Error! Make sure your server is online.");
                 btn.innerText = "LOGIN";
                 btn.disabled = false;
             }
