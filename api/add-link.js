@@ -4,13 +4,15 @@ if (!mongoose.connections[0].readyState) {
     mongoose.connect(process.env.MONGODB_URI);
 }
 
+// 1. Schema එකට verificationCode එකතු කළා
 const GroupSchema = new mongoose.Schema({
     name: { type: String, required: true },
     link: { type: String, required: true },
     budget: { type: Number, required: true },
     owner: { type: String, required: true },
     tags: { type: [String], default: [] },
-    type: { type: String, enum: ['group', 'channel'], required: true }, // 'group' හෝ 'channel' පමණි
+    type: { type: String, enum: ['group', 'channel'], required: true },
+    verificationCode: { type: String, required: true }, // මෙන්න මේක අලුතින් දැම්මා
     joinedUsers: { type: [String], default: [] },
     createdAt: { type: Date, default: Date.now }
 });
@@ -25,10 +27,12 @@ export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ message: 'Method not allowed' });
 
     try {
-        const { name, link, budget, phone, tags } = req.body;
+        // 2. Request body එකෙන් verificationCode එක ගත්තා
+        const { name, link, budget, phone, tags, verificationCode } = req.body;
 
-        if (!name || !link || !budget || !phone) {
-            return res.status(400).json({ success: false, message: "සියලුම තොරතුරු ඇතුළත් කරන්න!" });
+        // සියලුම දේවල් තියෙනවද කියලා චෙක් කරනවා (verificationCode ඇතුළුව)
+        if (!name || !link || !budget || !phone || !verificationCode) {
+            return res.status(400).json({ success: false, message: "කරුණාකර සියලුම තොරතුරු සහ මුරපදය (Verification Code) ඇතුළත් කරන්න!" });
         }
 
         // --- Link Validation Logic ---
@@ -41,7 +45,6 @@ export default async function handler(req, res) {
         } else if (isWhatsappChannel) {
             linkType = 'channel';
         } else {
-            // වැරදි ලින්ක් එකක් නම් මෙතනින් නවත්වනවා
             return res.status(400).json({ 
                 success: false, 
                 message: "වලංගු නොවන ලින්ක් එකකි. කරුණාකර නිවැරදි WhatsApp Group හෝ Channel ලින්ක් එකක් ලබා දෙන්න." 
@@ -49,7 +52,7 @@ export default async function handler(req, res) {
         }
 
         const user = await User.findOne({ phone: String(phone) });
-        if (!user) return res.status(404).json({ success: false, message: "User not found!" });
+        if (!user) return res.status(404).json({ success: false, message: "පරිශීලකයා සොයාගත නොහැක!" });
 
         if (user.coins < budget) {
             return res.status(400).json({ success: false, message: "ඔබ සතුව ප්‍රමාණවත් Coins නොමැත!" });
@@ -61,14 +64,15 @@ export default async function handler(req, res) {
         user.coins -= budget;
         await user.save();
 
-        // ඩේටාබේස් එකට සේව් කිරීම
+        // 3. Database එකට verificationCode එකත් එක්කම සේව් කිරීම
         const newGroup = new Group({
             name,
             link,
             budget,
             owner: phone,
             tags: tagsArray,
-            type: linkType, // මෙතනට 'group' හෝ 'channel' යනවා
+            type: linkType,
+            verificationCode: verificationCode, // මෙතනට සේව් වෙනවා
             joinedUsers: [] 
         });
         await newGroup.save();
