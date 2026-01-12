@@ -1,0 +1,13 @@
+{
+  "name": "zanta-boost",
+  "version": "1.0.0",
+  "description": "WhatsApp Group and Channel Boosting Platform",
+  "main": "register.html",
+  "dependencies": {
+    "mongoose": "^9.1.3",
+    "dotenv": "^17.2.3"
+  },
+  "scripts": {
+    "start": "echo 'Client-side app running'"
+  }
+}
