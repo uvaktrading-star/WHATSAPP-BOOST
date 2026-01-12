@@ -14,41 +14,44 @@
         
         header { width: 100%; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; z-index: 100; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); border-bottom: 1px solid var(--glass-border); }
         .nav-right { display: flex; align-items: center; gap: 10px; }
-        .user-tag { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; color: #aaa; display: flex; align-items: center; gap: 5px; }
         .coin-display { background: rgba(0, 212, 255, 0.15); border: 1px solid var(--primary); padding: 5px 15px; border-radius: 20px; display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer; }
-        .signout-btn { background: rgba(255, 75, 43, 0.1); border: 1px solid var(--danger); color: var(--danger); width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .signout-btn { color: var(--danger); font-size: 1.2rem; margin-left: 5px; cursor: pointer; }
         
-        .container { width: 95%; max-width: 600px; margin: 100px auto 140px auto; text-align: center; z-index: 10; }
-        .glass-card { background: var(--glass); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 30px; padding: 25px 15px; }
+        .container { width: 95%; max-width: 600px; margin: 90px auto 140px auto; text-align: center; z-index: 10; }
+        .glass-card { background: var(--glass); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 30px; padding: 20px 15px; }
         
-        /* Search Bar Style */
-        .search-container { position: relative; margin-bottom: 20px; display: flex; gap: 8px; }
-        .search-input { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 15px; padding: 12px 15px; color: white; outline: none; font-size: 0.9rem; }
-        .search-btn { background: var(--primary); color: black; border: none; border-radius: 15px; padding: 0 20px; cursor: pointer; font-weight: 600; }
+        /* Compact Search Bar */
+        .search-container { max-width: 300px; margin: 0 auto 20px auto; position: relative; display: flex; gap: 5px; }
+        .search-input { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 12px; padding: 8px 12px; color: white; outline: none; font-size: 0.8rem; }
+        .search-btn { background: var(--primary); color: black; border: none; border-radius: 10px; padding: 0 12px; cursor: pointer; }
 
-        .tabs { display: flex; gap: 8px; margin-bottom: 20px; justify-content: center; overflow-x: auto; }
-        .tab-btn { padding: 10px 15px; border-radius: 12px; border: 1px solid var(--glass-border); background: transparent; color: #fff; cursor: pointer; transition: 0.3s; font-size: 0.85rem; font-weight: 600; }
+        .tabs { display: flex; gap: 8px; margin-bottom: 15px; justify-content: center; }
+        .tab-btn { padding: 10px; border-radius: 12px; border: 1px solid var(--glass-border); background: transparent; color: #fff; cursor: pointer; transition: 0.3s; font-size: 0.8rem; font-weight: 600; flex: 1; }
         .tab-btn.active { background: var(--primary); color: #000; border-color: var(--primary); }
-        .tab-btn.special { color: var(--warning); border-color: var(--warning); }
-        .tab-btn.special.active { background: var(--warning); color: #000; }
+        .tab-btn.special.active { background: var(--warning); color: #000; border-color: var(--warning); }
 
-        .list-item { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 20px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .stats-bar { font-size: 0.75rem; color: var(--primary); margin-bottom: 15px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+
+        .list-item { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 18px; padding: 12px 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         .item-info { text-align: left; }
-        .item-title { font-weight: 600; font-size: 0.95rem; color: var(--primary); display: block; }
-        .item-tags { font-size: 0.7rem; color: var(--warning); display: block; margin-top: 2px; }
-        .item-meta { font-size: 0.75rem; color: rgba(255,255,255,0.5); }
+        .item-title { font-weight: 600; font-size: 0.9rem; color: #fff; display: block; }
+        .item-tags { font-size: 0.65rem; color: var(--warning); display: block; }
+        .item-meta { font-size: 0.7rem; color: rgba(255,255,255,0.4); }
         
-        .btn-action { padding: 8px 18px; border-radius: 15px; font-size: 0.8rem; font-weight: 700; cursor: pointer; border: none; }
+        .btn-action { padding: 8px 15px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; cursor: pointer; border: none; min-width: 85px; }
         .join-btn { background: var(--primary); color: #000; }
-        .delete-btn { background: rgba(255, 75, 43, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+        .follow-btn { background: var(--warning); color: #000; }
+        .delete-btn { background: rgba(255, 75, 43, 0.1); color: var(--danger); border: 1px solid var(--danger); }
         
-        /* Pagination Style */
-        .pagination { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 20px; }
-        .page-info { font-size: 0.85rem; color: rgba(255,255,255,0.6); }
-        .nav-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: white; padding: 5px 15px; border-radius: 10px; cursor: pointer; }
-        .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 15px; }
+        .nav-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: white; padding: 5px 12px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; }
+        .page-info { font-size: 0.75rem; color: rgba(255,255,255,0.5); }
 
-        .loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--primary); border-radius: 50%; width: 25px; height: 25px; animation: spin 1s linear infinite; margin: 20px auto; }
+        /* Floating Add Button (Specific to My Links) */
+        .fab-add { position: fixed; bottom: 30px; right: 30px; background: var(--primary); width: 55px; height: 55px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 1.2rem; color: black; box-shadow: 0 5px 15px rgba(0,212,255,0.3); cursor: pointer; z-index: 100; transition: transform 0.2s; }
+        .fab-add:active { transform: scale(0.9); }
+
+        .loader { border: 2px solid #333; border-top: 2px solid var(--primary); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; margin: 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
@@ -57,44 +60,40 @@
     <div class="stars-container"></div>
 
     <header>
-        <div style="font-weight: 600; color: var(--primary); font-size: 1.1rem;">ZANTA</div>
+        <div style="font-weight: 600; color: var(--primary); font-size: 1rem;">ZANTA BOOST</div>
         <div class="nav-right">
-            <div class="user-tag"><i class="fas fa-user"></i> <span id="userPhoneDisplay">...</span></div>
             <div class="coin-display" onclick="location.reload()"><i class="fas fa-coins"></i> <span id="coinCount">...</span></div>
-            <div class="signout-btn" onclick="handleSignOut()"><i class="fas fa-sign-out-alt"></i></div>
+            <div class="signout-btn" onclick="handleSignOut()"><i class="fas fa-power-off"></i></div>
         </div>
     </header>
 
     <div class="container">
         <div class="glass-card">
-            <h1>DASHBOARD</h1>
-            <p class="subtitle" id="tabSubtitle">Join and Earn Coins</p>
+            <div class="stats-bar" id="countDisplay">Scanning...</div>
 
-            <div class="search-container">
-                <input type="text" id="searchInput" class="search-input" placeholder="Search by name or tags...">
+            <div class="search-container" id="searchBar">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search keywords...">
                 <button class="search-btn" onclick="handleSearch()"><i class="fas fa-search"></i></button>
             </div>
 
             <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('group', this)">Groups</button>
-                <button class="tab-btn" onclick="switchTab('channel', this)">Channels</button>
-                <button class="tab-btn special" onclick="switchTab('my', this)">My Links</button>
+                <button class="tab-btn active" id="tab-group" onclick="switchTab('group')">Groups</button>
+                <button class="tab-btn" id="tab-channel" onclick="switchTab('channel')">Channels</button>
+                <button class="tab-btn special" id="tab-my" onclick="switchTab('my')">My Links</button>
             </div>
 
             <div id="loading" class="loader" style="display:none;"></div>
             <div id="itemList"></div>
 
             <div class="pagination" id="pagination">
-                <button class="nav-btn" id="prevBtn" onclick="changePage(-1)"><i class="fas fa-chevron-left"></i> Back</button>
-                <span class="page-info" id="pageNumber">Page 1</span>
-                <button class="nav-btn" id="nextBtn" onclick="changePage(1)">Next <i class="fas fa-chevron-right"></i></button>
+                <button class="nav-btn" id="prevBtn" onclick="changePage(-1)"><i class="fas fa-arrow-left"></i></button>
+                <span class="page-info" id="pageNumber">1 / 1</span>
+                <button class="nav-btn" id="nextBtn" onclick="changePage(1)"><i class="fas fa-arrow-right"></i></button>
             </div>
         </div>
     </div>
 
-    <div class="floating-controls">
-        <div class="fab-main" onclick="window.location.href='add.html'"><i class="fas fa-plus"></i></div>
-    </div>
+    <div id="addBtn" class="fab-add" onclick="window.location.href='add.html'"><i class="fas fa-plus"></i></div>
 
     <script>
         const phone = localStorage.getItem('userPhone');
@@ -104,75 +103,99 @@
 
         window.onload = function() {
             if (!phone) { window.location.href = "login.html"; return; }
-            document.getElementById('userPhoneDisplay').innerText = phone;
             fetchUserStats();
             loadLinks();
         };
 
         async function loadLinks() {
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('itemList').innerHTML = '';
+            const listContainer = document.getElementById('itemList');
+            const loading = document.getElementById('loading');
+            const countDisplay = document.getElementById('countDisplay');
+            
+            loading.style.display = 'block';
+            listContainer.innerHTML = '';
             
             try {
-                // සර්ච් සහ පේජිනේෂන් වලට අදාළව URL එක සකසනවා
                 const baseUrl = currentTab === 'my' ? '/api/my-links' : '/api/get-links';
-                const url = `${baseUrl}?phone=${phone}&page=${currentPage}&search=${encodeURIComponent(searchQuery)}`;
+                const url = `${baseUrl}?phone=${phone}&page=${currentPage}&search=${encodeURIComponent(searchQuery)}&tab=${currentTab}`;
                 
                 const res = await fetch(url);
                 const data = await res.json();
-                document.getElementById('loading').style.display = 'none';
+                loading.style.display = 'none';
 
                 if (data.success) {
+                    // Counts පෙන්වීම (API එකෙන් එන links ගණන අනුව)
+                    const typeText = currentTab === 'my' ? 'Campaigns' : (currentTab === 'group' ? 'Groups' : 'Channels');
+                    countDisplay.innerText = `${data.totalLinks || data.links.length} ${typeText} Available`;
+                    
                     renderLinks(data.links);
                     updatePagination(data.currentPage, data.totalPages);
                 }
             } catch (err) {
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('itemList').innerHTML = '<p style="color:red">Error loading data.</p>';
+                loading.style.display = 'none';
+                listContainer.innerHTML = '<p style="color:red; font-size:0.8rem;">Sync Error</p>';
             }
         }
 
         function renderLinks(links) {
             const list = document.getElementById('itemList');
-            list.innerHTML = '';
-            
-            // Channels/Groups filtering (Frontend එකේදීත් තහවුරු කරනවා)
-            let filtered = links;
-            if (currentTab !== 'my') {
-                filtered = links.filter(item => {
-                    const isGroup = item.link.includes('chat.whatsapp.com');
-                    return currentTab === 'group' ? isGroup : !isGroup;
-                });
-            }
-
-            if (filtered.length === 0) {
-                list.innerHTML = `<p style="color:gray; padding:20px;">No links found.</p>`;
+            if (links.length === 0) {
+                list.innerHTML = `<p style="color:gray; padding:30px; font-size:0.8rem;">No items found in this category.</p>`;
                 return;
             }
 
-            filtered.forEach(item => {
+            links.forEach(item => {
                 const isMyLink = currentTab === 'my';
                 const tagsHtml = item.tags && item.tags.length > 0 ? 
-                    `<span class="item-tags"><i class="fas fa-tags"></i> ${item.tags.join(', ')}</span>` : '';
+                    `<span class="item-tags"><i class="fas fa-hashtag"></i> ${item.tags.join(', ')}</span>` : '';
+
+                const isChannel = item.type === 'channel' || item.link.includes('whatsapp.com/channel');
+                const btnLabel = isChannel ? 'FOLLOW' : 'JOIN';
+                const btnClass = isChannel ? 'follow-btn' : 'join-btn';
 
                 list.innerHTML += `
                     <div class="list-item">
                         <div class="item-info">
                             <span class="item-title">${item.name}</span>
                             ${tagsHtml}
-                            <span class="item-meta">${isMyLink ? 'Remaining: ' + item.budget : 'Earn 1 Coin'}</span>
+                            <span class="item-meta">${isMyLink ? 'Balance: ' + item.budget : 'Reward: 1 Coin'}</span>
                         </div>
                         ${isMyLink ? 
-                            `<button class="btn-action delete-btn" onclick="handleDelete('${item._id}')"><i class="fas fa-trash"></i></button>` : 
-                            `<button class="btn-action join-btn" onclick="handleJoin('${item.link}', '${item._id}')">JOIN</button>`
+                            `<button class="btn-action delete-btn" onclick="handleDelete('${item._id}')">REMOVE</button>` : 
+                            `<button class="btn-action ${btnClass}" onclick="handleJoin('${item.link}', '${item._id}')">${btnLabel}</button>`
                         }
                     </div>
                 `;
             });
         }
 
+        function switchTab(type) {
+            currentTab = type;
+            currentPage = 1;
+            searchQuery = "";
+            document.getElementById('searchInput').value = "";
+            
+            // Active Tab Class
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`tab-${type}`).classList.add('active');
+
+            // "Add" Button එක සහ Search Bar එක පෙන්වන/සඟවන Logic එක
+            const addBtn = document.getElementById('addBtn');
+            const searchBar = document.getElementById('searchBar');
+            
+            if(type === 'my') {
+                addBtn.style.display = 'flex';
+                searchBar.style.visibility = 'hidden'; // Space එක තියලා හංගනවා UI එක පනින්නේ නැති වෙන්න
+            } else {
+                addBtn.style.display = 'none';
+                searchBar.style.visibility = 'visible';
+            }
+            
+            loadLinks();
+        }
+
         function updatePagination(current, total) {
-            document.getElementById('pageNumber').innerText = `Page ${current} of ${total || 1}`;
+            document.getElementById('pageNumber').innerText = `${current} / ${total || 1}`;
             document.getElementById('prevBtn').disabled = (current <= 1);
             document.getElementById('nextBtn').disabled = (current >= total);
         }
@@ -184,22 +207,7 @@
 
         function handleSearch() {
             searchQuery = document.getElementById('searchInput').value;
-            currentPage = 1; // අලුතින් සර්ච් කරද්දී පළමු පිටුවට යනවා
-            loadLinks();
-        }
-
-        function switchTab(type, btn) {
-            currentTab = type;
             currentPage = 1;
-            searchQuery = "";
-            document.getElementById('searchInput').value = "";
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById('tabSubtitle').innerText = type === 'my' ? 'Manage Your Campaigns' : 'Join and Earn Coins';
-            
-            // "My Links" වලදී සර්ච් එක අයින් කරමු (අවශ්‍ය නම් තියන්න පුළුවන්)
-            document.querySelector('.search-container').style.display = type === 'my' ? 'none' : 'flex';
-            
             loadLinks();
         }
 
@@ -214,7 +222,7 @@
                 const data = await res.json();
                 if(data.success) {
                     document.getElementById('coinCount').innerText = data.newBalance;
-                    loadLinks(); // ඊළඟ ලින්ක් එක ඔටෝම ලිස්ට් එකට එනවා
+                    loadLinks();
                 }
             } catch (err) { console.error(err); }
         }
@@ -228,18 +236,18 @@
                 });
                 const data = await res.json();
                 if (data.success) {
-                    document.getElementById('coinCount').innerText = data.user ? data.user.coins : data.coins;
+                    document.getElementById('coinCount').innerText = data.user.coins;
                 }
             } catch (e) { console.error(e); }
         }
 
         async function handleDelete(linkId) {
-            if (!confirm("Delete link?")) return;
+            if (!confirm("Remove this campaign? Unused coins won't be refunded.")) return;
             try {
                 const res = await fetch(`/api/my-links?action=delete&id=${linkId}`);
                 const data = await res.json();
                 if (data.success) { loadLinks(); }
-            } catch (err) { alert("Delete failed"); }
+            } catch (err) { alert("Error"); }
         }
 
         function handleSignOut() {
