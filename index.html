@@ -21,7 +21,7 @@
         .glass-card { background: var(--glass); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 30px; padding: 20px 15px; }
         
         /* Compact Search Bar */
-        .search-container { max-width: 300px; margin: 0 auto 20px auto; position: relative; display: flex; gap: 5px; }
+        .search-container { max-width: 300px; margin: 0 auto 20px auto; position: relative; display: flex; gap: 5px; transition: 0.3s; }
         .search-input { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 12px; padding: 8px 12px; color: white; outline: none; font-size: 0.8rem; }
         .search-btn { background: var(--primary); color: black; border: none; border-radius: 10px; padding: 0 12px; cursor: pointer; }
 
@@ -45,9 +45,10 @@
         
         .pagination { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 15px; }
         .nav-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: white; padding: 5px 12px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; }
+        .nav-btn:disabled { opacity: 0.2; cursor: not-allowed; }
         .page-info { font-size: 0.75rem; color: rgba(255,255,255,0.5); }
 
-        /* Floating Add Button (Specific to My Links) */
+        /* Floating Add Button (Only for My Links) */
         .fab-add { position: fixed; bottom: 30px; right: 30px; background: var(--primary); width: 55px; height: 55px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 1.2rem; color: black; box-shadow: 0 5px 15px rgba(0,212,255,0.3); cursor: pointer; z-index: 100; transition: transform 0.2s; }
         .fab-add:active { transform: scale(0.9); }
 
@@ -69,7 +70,7 @@
 
     <div class="container">
         <div class="glass-card">
-            <div class="stats-bar" id="countDisplay">Scanning...</div>
+            <div class="stats-bar" id="countDisplay">Initializing...</div>
 
             <div class="search-container" id="searchBar">
                 <input type="text" id="searchInput" class="search-input" placeholder="Search keywords...">
@@ -107,6 +108,22 @@
             loadLinks();
         };
 
+        async function fetchUserStats() {
+            try {
+                const res = await fetch(`/api/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone, autoLogin: true }) 
+                });
+                const data = await res.json();
+                if (data.success) {
+                    // Fix for undefined coins error
+                    const balance = data.user ? data.user.coins : (data.coins || 0);
+                    document.getElementById('coinCount').innerText = balance;
+                }
+            } catch (e) { console.error("Stats Error:", e); }
+        }
+
         async function loadLinks() {
             const listContainer = document.getElementById('itemList');
             const loading = document.getElementById('loading');
@@ -124,9 +141,10 @@
                 loading.style.display = 'none';
 
                 if (data.success) {
-                    // Counts පෙන්වීම (API එකෙන් එන links ගණන අනුව)
+                    // Update stats bar
                     const typeText = currentTab === 'my' ? 'Campaigns' : (currentTab === 'group' ? 'Groups' : 'Channels');
-                    countDisplay.innerText = `${data.totalLinks || data.links.length} ${typeText} Available`;
+                    const total = data.totalLinks || data.links.length;
+                    countDisplay.innerText = `${total} ${typeText} Available`;
                     
                     renderLinks(data.links);
                     updatePagination(data.currentPage, data.totalPages);
@@ -140,16 +158,16 @@
         function renderLinks(links) {
             const list = document.getElementById('itemList');
             if (links.length === 0) {
-                list.innerHTML = `<p style="color:gray; padding:30px; font-size:0.8rem;">No items found in this category.</p>`;
+                list.innerHTML = `<p style="color:gray; padding:30px; font-size:0.8rem;">No items found.</p>`;
                 return;
             }
 
             links.forEach(item => {
                 const isMyLink = currentTab === 'my';
                 const tagsHtml = item.tags && item.tags.length > 0 ? 
-                    `<span class="item-tags"><i class="fas fa-hashtag"></i> ${item.tags.join(', ')}</span>` : '';
+                    `<span class="item-tags"><i class="fas fa-hashtag"></i> ${Array.isArray(item.tags) ? item.tags.join(', ') : item.tags}</span>` : '';
 
-                const isChannel = item.type === 'channel' || item.link.includes('whatsapp.com/channel');
+                const isChannel = item.type === 'channel' || (item.link && item.link.includes('whatsapp.com/channel'));
                 const btnLabel = isChannel ? 'FOLLOW' : 'JOIN';
                 const btnClass = isChannel ? 'follow-btn' : 'join-btn';
 
@@ -158,7 +176,7 @@
                         <div class="item-info">
                             <span class="item-title">${item.name}</span>
                             ${tagsHtml}
-                            <span class="item-meta">${isMyLink ? 'Balance: ' + item.budget : 'Reward: 1 Coin'}</span>
+                            <span class="item-meta">${isMyLink ? 'Remaining: ' + item.budget : 'Reward: 1 Coin'}</span>
                         </div>
                         ${isMyLink ? 
                             `<button class="btn-action delete-btn" onclick="handleDelete('${item._id}')">REMOVE</button>` : 
@@ -175,17 +193,15 @@
             searchQuery = "";
             document.getElementById('searchInput').value = "";
             
-            // Active Tab Class
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(`tab-${type}`).classList.add('active');
 
-            // "Add" Button එක සහ Search Bar එක පෙන්වන/සඟවන Logic එක
             const addBtn = document.getElementById('addBtn');
             const searchBar = document.getElementById('searchBar');
             
             if(type === 'my') {
                 addBtn.style.display = 'flex';
-                searchBar.style.visibility = 'hidden'; // Space එක තියලා හංගනවා UI එක පනින්නේ නැති වෙන්න
+                searchBar.style.visibility = 'hidden'; 
             } else {
                 addBtn.style.display = 'none';
                 searchBar.style.visibility = 'visible';
@@ -227,27 +243,13 @@
             } catch (err) { console.error(err); }
         }
 
-        async function fetchUserStats() {
-            try {
-                const res = await fetch(`/api/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ phone, autoLogin: true }) 
-                });
-                const data = await res.json();
-                if (data.success) {
-                    document.getElementById('coinCount').innerText = data.user.coins;
-                }
-            } catch (e) { console.error(e); }
-        }
-
         async function handleDelete(linkId) {
             if (!confirm("Remove this campaign? Unused coins won't be refunded.")) return;
             try {
                 const res = await fetch(`/api/my-links?action=delete&id=${linkId}`);
                 const data = await res.json();
                 if (data.success) { loadLinks(); }
-            } catch (err) { alert("Error"); }
+            } catch (err) { alert("Delete failed"); }
         }
 
         function handleSignOut() {
