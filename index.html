@@ -92,18 +92,18 @@
             <div class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
             
             <div class="menu-dropdown" id="menuDropdown">
-    <a href="https://chic-puppy-62f8d1.netlify.app/" class="menu-item">
-        <i class="fas fa-home"></i> Main Menu
-    </a>
+                <a href="https://chic-puppy-62f8d1.netlify.app/" class="menu-item">
+                    <i class="fas fa-home"></i> Main Menu
+                </a>
 
-    <a href="earn.html" class="menu-item">
-        <i class="fas fa-play-circle"></i> Watch Ads & Earn
-    </a>
+                <div class="menu-item" onclick="watchAdAndEarn()">
+                    <i class="fas fa-play-circle"></i> Watch Ads & Earn
+                </div>
 
-    <div class="menu-item logout" onclick="handleSignOut()">
-        <i class="fas fa-sign-out-alt"></i> Sign Out
-    </div>
-</div>
+                <div class="menu-item logout" onclick="handleSignOut()">
+                    <i class="fas fa-sign-out-alt"></i> Sign Out
+                </div>
+            </div>
         </div>
     </header>
 
@@ -143,8 +143,6 @@
             <p style="font-size: 0.6rem; color: #444; margin-bottom: 5px;">ADVERTISEMENT</p>
             <script async="async" data-cfasync="false" src="https://pl28409004.effectivegatecpm.com/04fde588c8c3c4ebc19bb82d26eddcf6/invoke.js"></script>
             <div id="container-04fde588c8c3c4ebc19bb82d26eddcf6"></div>
-            
-            <div id="container-04fde588c8c3c4ebc19bb82d26eddcf6"></div>
         </div>
     </div>
 
@@ -157,6 +155,48 @@
         let currentTab = 'group';
         let currentPage = 1;
         let searchQuery = "";
+
+        // Adsterra Smart Link Logic
+        const SMART_LINK = "https://www.effectivegatecpm.com/n41feetu?key=8507e86b8af6cc2490fb35cfbfc6e448";
+        const WAIT_TIME = 20 * 60 * 1000;
+
+        async function watchAdAndEarn() {
+            const lastEarnTime = localStorage.getItem('lastEarnTime');
+            const now = new Date().getTime();
+
+            if (lastEarnTime && (now - lastEarnTime < WAIT_TIME)) {
+                const remaining = Math.ceil((WAIT_TIME - (now - lastEarnTime)) / (1000 * 60));
+                alert(`කරුණාකර තවත් විනාඩි ${remaining} කින් උත්සාහ කරන්න.`);
+                return;
+            }
+
+            window.open(SMART_LINK, '_blank');
+
+            try {
+                // සර්වර් එකේ කොයින් අප්ඩේට් කිරීම
+                const res = await fetch('/api/reward', { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone, isAdReward: true }) // Backend එකේ මෙය handle කර තිබිය යුතුය
+                });
+                const data = await res.json();
+                
+                if(data.success) {
+                    document.getElementById('coinCount').innerText = data.newBalance;
+                    localStorage.setItem('lastEarnTime', now);
+                    alert("සාර්ථකයි! කොයින් 1ක් එකතු වුණා.");
+                } else {
+                    // Backend එක නැතිනම් පරණ විදියට UI එක විතරක් අප්ඩේට් කිරීමට:
+                    let currentCoins = parseInt(document.getElementById('coinCount').innerText) || 0;
+                    document.getElementById('coinCount').innerText = currentCoins + 1;
+                    localStorage.setItem('lastEarnTime', now);
+                    alert("සාර්ථකයි! (Local update)");
+                }
+            } catch (e) {
+                console.error(e);
+            }
+            toggleMenu();
+        }
 
         function showWarningModal() {
             const modal = document.getElementById('warningModal');
@@ -322,4 +362,3 @@
     </script>
 </body>
 </html>
-
