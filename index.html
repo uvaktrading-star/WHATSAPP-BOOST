@@ -7,16 +7,25 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --primary: #00d4ff; --bg-dark: #000; --glass: rgba(0, 212, 255, 0.05); --glass-border: rgba(182, 227, 255, 0.15); --danger: #ff4b2b; --warning: #ffd700; --success: #28a745; }
+        :root { --primary: #00d4ff; --bg-dark: #000; --glass: rgba(0, 212, 255, 0.05); --glass-border: rgba(182, 227, 255, 0.15); --danger: #ff4b2b; --warning: #ffd700; --success: #28a745; --overlay: rgba(0, 0, 0, 0.85); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         body { background: var(--bg-dark); min-height: 100vh; color: #fff; overflow-x: hidden; display: flex; flex-direction: column; align-items: center; }
-        .stars-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(circle at center, #0a1a2d 0%, #000 100%); }
         
+        /* Modal Style */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--overlay); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 2000; opacity: 0; transition: 0.3s; }
+        .modal-card { background: #111; border: 1px solid var(--danger); padding: 30px; border-radius: 25px; max-width: 400px; width: 90%; text-align: center; transform: scale(0.8); transition: 0.3s; }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-overlay.active .modal-card { transform: scale(1); }
+        .modal-icon { font-size: 3rem; color: var(--danger); margin-bottom: 15px; }
+        .modal-card h3 { color: #fff; margin-bottom: 10px; }
+        .modal-card p { font-size: 0.85rem; color: #ccc; line-height: 1.6; margin-bottom: 20px; }
+        .modal-btn { background: var(--danger); color: #fff; padding: 10px 30px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; }
+
+        .stars-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(circle at center, #0a1a2d 0%, #000 100%); }
         header { width: 100%; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; z-index: 100; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); border-bottom: 1px solid var(--glass-border); }
         .user-phone { font-size: 0.85rem; color: var(--primary); font-weight: 600; }
         .nav-right { display: flex; align-items: center; gap: 10px; position: relative; }
         .coin-display { background: rgba(0, 212, 255, 0.15); border: 1px solid var(--primary); padding: 5px 15px; border-radius: 20px; display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer; }
-        
         .menu-btn { font-size: 1.2rem; cursor: pointer; color: #fff; padding: 5px; }
         .menu-dropdown { position: absolute; top: 45px; right: 0; background: #111; border: 1px solid var(--glass-border); border-radius: 12px; width: 180px; display: none; flex-direction: column; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
         .menu-dropdown.active { display: flex; }
@@ -24,46 +33,34 @@
         .menu-item:hover { background: rgba(255,255,255,0.05); }
         .menu-item i { width: 20px; }
         .menu-item.logout { color: var(--danger); }
-
         .container { width: 95%; max-width: 600px; margin: 90px auto 140px auto; text-align: center; z-index: 10; }
         .glass-card { background: var(--glass); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 30px; padding: 20px 15px; }
-        
         .search-container { max-width: 300px; margin: 0 auto 20px auto; position: relative; display: flex; gap: 5px; transition: 0.3s; }
         .search-input { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 12px; padding: 8px 12px; color: white; outline: none; font-size: 0.8rem; }
         .search-btn { background: var(--primary); color: black; border: none; border-radius: 10px; padding: 0 12px; cursor: pointer; }
-
         .tabs { display: flex; gap: 8px; margin-bottom: 15px; justify-content: center; }
         .tab-btn { padding: 10px; border-radius: 12px; border: 1px solid var(--glass-border); background: transparent; color: #fff; cursor: pointer; transition: 0.3s; font-size: 0.8rem; font-weight: 600; flex: 1; }
         .tab-btn.active { background: var(--primary); color: #000; border-color: var(--primary); }
         .tab-btn.special.active { background: var(--warning); color: #000; border-color: var(--warning); }
-
         .stats-bar { font-size: 0.75rem; color: var(--primary); margin-bottom: 15px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
-
         .list-item { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 18px; padding: 12px 15px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 10px; }
         .item-main { display: flex; justify-content: space-between; align-items: center; width: 100%; }
         .item-info { text-align: left; }
         .item-title { font-weight: 600; font-size: 0.9rem; color: #fff; display: block; }
-        .item-tags { font-size: 0.65rem; color: var(--warning); display: block; }
         .item-meta { font-size: 0.7rem; color: rgba(255,255,255,0.4); }
-        
-        /* Verification Style */
         .verify-box { display: none; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 12px; margin-top: 5px; border: 1px dashed var(--primary); }
         .verify-input { background: #000; border: 1px solid #333; color: #fff; padding: 5px 10px; border-radius: 8px; font-size: 0.8rem; width: 120px; outline: none; }
-
         .btn-action { padding: 8px 15px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; cursor: pointer; border: none; min-width: 85px; transition: 0.2s; }
         .join-btn { background: var(--primary); color: #000; }
         .follow-btn { background: var(--warning); color: #000; }
         .verify-btn { background: var(--success); color: #fff; margin-left: 5px; }
         .delete-btn { background: rgba(255, 75, 43, 0.1); color: var(--danger); border: 1px solid var(--danger); }
-        
         .pagination { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 15px; }
         .nav-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: white; padding: 5px 12px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; }
         .nav-btn:disabled { opacity: 0.2; cursor: not-allowed; }
         .page-info { font-size: 0.75rem; color: rgba(255,255,255,0.5); }
-
         .fab-add { position: fixed; bottom: 30px; right: 30px; background: var(--primary); width: 55px; height: 55px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 1.2rem; color: black; box-shadow: 0 5px 15px rgba(0,212,255,0.3); cursor: pointer; z-index: 100; transition: transform 0.2s; }
         .fab-add:active { transform: scale(0.9); }
-
         .loader { border: 2px solid #333; border-top: 2px solid var(--primary); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; margin: 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
@@ -71,6 +68,15 @@
 <body>
 
     <div class="stars-container"></div>
+
+    <div class="modal-overlay" id="warningModal">
+        <div class="modal-card">
+            <div class="modal-icon"><i class="fas fa-exclamation-triangle"></i></div>
+            <h3>අවවාදයයි!</h3>
+            <p>ඔබ මෙහි වංචාවක් හෝ වෙනත් නුසුදුසු ක්‍රියාවක් සිදු කරන්නේ නම් ඔබගේ ගිණුම වහාම අත්හිටුවනු ඇත.</p>
+            <button class="modal-btn" onclick="closeModal()">පිළිගන්නවා</button>
+        </div>
+    </div>
 
     <header>
         <div class="user-phone" id="displayPhone">07XXXXXXXX</div>
@@ -123,13 +129,27 @@
         let currentPage = 1;
         let searchQuery = "";
 
+        // Modal Control Functions
+        function showWarningModal() {
+            const modal = document.getElementById('warningModal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('active'), 100);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('warningModal');
+            modal.classList.remove('active');
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
+
         window.onload = function() {
             if (!phone) { window.location.href = "login.html"; return; }
             document.getElementById('displayPhone').innerText = phone;
             
+            // Check for pending warning from login
             if (localStorage.getItem('pendingWarning') === 'true') {
                 setTimeout(() => {
-                    alert("⚠️ අවවාදයයි:\n\nඔබ මෙහි වංචාවක් හෝ වෙනත් නුසුදුසු ක්‍රියාවක් සිදු කරන්නේ නම් ඔබගේ ගිණුම වහාම අත්හිටුවනු ඇත.");
+                    showWarningModal();
                     localStorage.removeItem('pendingWarning');
                 }, 800);
             }
@@ -218,13 +238,8 @@
             });
         }
 
-        // --- Logic: Join -> Show Input -> Verify ---
-        
         function handleJoinClick(link, linkId) {
-            // 1. Open WhatsApp
             window.open(link, "_blank");
-            
-            // 2. Show the Verification Input Box
             document.getElementById(`verify-box-${linkId}`).style.display = 'block';
             document.getElementById(`join-btn-${linkId}`).style.opacity = '0.5';
             document.getElementById(`join-btn-${linkId}`).innerText = 'OPENED';
