@@ -72,7 +72,6 @@
         h1 { font-size: 2rem; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
         .subtitle { font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-bottom: 25px; }
 
-        /* Tabs Style */
         .tabs { display: flex; gap: 10px; margin-bottom: 25px; justify-content: center; }
         .tab-btn {
             flex: 1; padding: 12px; border-radius: 15px; border: 1px solid var(--glass-border);
@@ -153,7 +152,7 @@
 
     <script>
         const phone = localStorage.getItem('userPhone');
-        let allLinks = []; // සේරම ලින්ක්ස් ටික තියාගන්න Array එකක්
+        let allLinks = [];
 
         window.onload = function() {
             if (!phone) {
@@ -186,7 +185,7 @@
 
                 if (data.success) {
                     allLinks = data.links;
-                    renderLinks('group'); // මුලින්ම Groups පෙන්නනවා
+                    renderLinks('group');
                 }
             } catch (err) {
                 document.getElementById('loading').style.display = 'none';
@@ -198,7 +197,6 @@
             const list = document.getElementById('itemList');
             list.innerHTML = '';
             
-            // ලින්ක් එක chat.whatsapp නම් Group, නැත්නම් Channel ලෙස සලකමු (දැනට)
             const filtered = allLinks.filter(item => {
                 const isGroup = item.link.includes('chat.whatsapp.com');
                 return type === 'group' ? isGroup : !isGroup;
@@ -216,7 +214,7 @@
                             <span class="item-title">${item.name}</span>
                             <span class="item-meta">Earn 1 Coin</span>
                         </div>
-                        <button class="join-btn" onclick="handleJoin('${item.link}')">JOIN</button>
+                        <button class="join-btn" onclick="handleJoin('${item.link}', '${item._id}')">JOIN</button>
                     </div>
                 `;
             });
@@ -228,20 +226,33 @@
             renderLinks(type);
         }
 
-        async function handleJoin(link) {
+        async function handleJoin(link, linkId) {
+            // මුලින්ම ලින්ක් එක open කරනවා
             window.open(link, "_blank");
+
             try {
+                // සර්වර් එකට Reward එක සහ Budget අඩු කරන්න කියනවා
                 const res = await fetch('/api/reward', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ phone: phone })
+                    body: JSON.stringify({ 
+                        phone: phone,
+                        linkId: linkId // මෙන්න මේක තමයි Budget එක අඩු කරන්න ඕනේ වෙන්නේ
+                    })
                 });
                 const data = await res.json();
+                
                 if(data.success) {
                     document.getElementById('coinCount').innerText = data.newBalance;
                     alert("Success: 1 Coin earned!");
+                    // පේජ් එක reload කරනවා එවෙලේම ඉවර වුණ ලින්ක් එක අයින් වෙන්න
+                    loadLinks();
+                } else {
+                    alert(data.message || "Reward failed.");
                 }
-            } catch (err) { alert("Reward failed."); }
+            } catch (err) { 
+                console.error("Reward error:", err);
+            }
         }
 
         function handleSignOut() {
