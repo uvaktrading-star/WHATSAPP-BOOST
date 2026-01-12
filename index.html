@@ -39,18 +39,22 @@
 
         .stats-bar { font-size: 0.75rem; color: var(--primary); margin-bottom: 15px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
 
-        .list-item { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 18px; padding: 12px 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .list-item { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 18px; padding: 12px 15px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 10px; }
+        .item-main { display: flex; justify-content: space-between; align-items: center; width: 100%; }
         .item-info { text-align: left; }
         .item-title { font-weight: 600; font-size: 0.9rem; color: #fff; display: block; }
         .item-tags { font-size: 0.65rem; color: var(--warning); display: block; }
         .item-meta { font-size: 0.7rem; color: rgba(255,255,255,0.4); }
         
+        /* Verification Style */
+        .verify-box { display: none; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 12px; margin-top: 5px; border: 1px dashed var(--primary); }
+        .verify-input { background: #000; border: 1px solid #333; color: #fff; padding: 5px 10px; border-radius: 8px; font-size: 0.8rem; width: 120px; outline: none; }
+
         .btn-action { padding: 8px 15px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; cursor: pointer; border: none; min-width: 85px; transition: 0.2s; }
         .join-btn { background: var(--primary); color: #000; }
         .follow-btn { background: var(--warning); color: #000; }
-        .claim-btn { background: var(--success); color: #fff; box-shadow: 0 0 10px var(--success); }
+        .verify-btn { background: var(--success); color: #fff; margin-left: 5px; }
         .delete-btn { background: rgba(255, 75, 43, 0.1); color: var(--danger); border: 1px solid var(--danger); }
-        .wait-btn { background: #333; color: #888; cursor: not-allowed; }
         
         .pagination { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 15px; }
         .nav-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: white; padding: 5px 12px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; }
@@ -123,7 +127,6 @@
             if (!phone) { window.location.href = "login.html"; return; }
             document.getElementById('displayPhone').innerText = phone;
             
-            // --- Warning Popup Logic ---
             if (localStorage.getItem('pendingWarning') === 'true') {
                 setTimeout(() => {
                     alert("⚠️ අවවාදයයි:\n\nඔබ මෙහි වංචාවක් හෝ වෙනත් නුසුදුසු ක්‍රියාවක් සිදු කරන්නේ නම් ඔබගේ ගිණුම වහාම අත්හිටුවනු ඇත.");
@@ -137,13 +140,6 @@
 
         function toggleMenu() {
             document.getElementById('menuDropdown').classList.toggle('active');
-        }
-
-        window.onclick = function(event) {
-            if (!event.target.matches('.menu-btn') && !event.target.matches('.fa-bars')) {
-                const dropdown = document.getElementById('menuDropdown');
-                if (dropdown.classList.contains('active')) { dropdown.classList.remove('active'); }
-            }
         }
 
         async function fetchUserStats() {
@@ -176,117 +172,93 @@
                 loading.style.display = 'none';
 
                 if (data.success) {
-                    const typeText = currentTab === 'my' ? 'Campaigns' : (currentTab === 'group' ? 'Groups' : 'Channels');
                     const total = data.totalLinks || data.links.length;
-                    countDisplay.innerText = `${total} ${typeText} Available`;
+                    countDisplay.innerText = `${total} Items Available`;
                     renderLinks(data.links);
                     updatePagination(data.currentPage, data.totalPages);
                 }
             } catch (err) {
                 loading.style.display = 'none';
-                listContainer.innerHTML = '<p style="color:red; font-size:0.8rem;">Sync Error</p>';
+                listContainer.innerHTML = '<p style="color:red;">Sync Error</p>';
             }
         }
 
         function renderLinks(links) {
             const list = document.getElementById('itemList');
             if (links.length === 0) {
-                list.innerHTML = `<p style="color:gray; padding:30px; font-size:0.8rem;">No items found.</p>`;
+                list.innerHTML = `<p style="color:gray; padding:30px;">No items found.</p>`;
                 return;
             }
 
             links.forEach(item => {
                 const isMyLink = currentTab === 'my';
-                const tagsHtml = item.tags && item.tags.length > 0 ? 
-                    `<span class="item-tags"><i class="fas fa-hashtag"></i> ${Array.isArray(item.tags) ? item.tags.join(', ') : item.tags}</span>` : '';
-
                 const isChannel = item.type === 'channel' || (item.link && item.link.includes('whatsapp.com/channel'));
                 const btnLabel = isChannel ? 'FOLLOW' : 'JOIN';
                 const btnClass = isChannel ? 'follow-btn' : 'join-btn';
 
                 list.innerHTML += `
                     <div class="list-item">
-                        <div class="item-info">
-                            <span class="item-title">${item.name}</span>
-                            ${tagsHtml}
-                            <span class="item-meta">${isMyLink ? 'Remaining: ' + item.budget : 'Reward: 1 Coin'}</span>
+                        <div class="item-main">
+                            <div class="item-info">
+                                <span class="item-title">${item.name}</span>
+                                <span class="item-meta">${isMyLink ? 'Remaining: ' + item.budget : 'Reward: 1 Coin'}</span>
+                            </div>
+                            ${isMyLink ? 
+                                `<button class="btn-action delete-btn" onclick="handleDelete('${item._id}')">REMOVE</button>` : 
+                                `<button id="join-btn-${item._id}" class="btn-action ${btnClass}" onclick="handleJoinClick('${item.link}', '${item._id}')">${btnLabel}</button>`
+                            }
                         </div>
-                        ${isMyLink ? 
-                            `<button class="btn-action delete-btn" onclick="handleDelete('${item._id}')">REMOVE</button>` : 
-                            `<button id="btn-${item._id}" class="btn-action ${btnClass}" onclick="startJoinProcess('${item.link}', '${item._id}')">${btnLabel}</button>`
-                        }
+                        <div id="verify-box-${item._id}" class="verify-box">
+                            <p style="font-size:0.65rem; color:var(--primary); margin-bottom:5px;">Enter Code from Group Description:</p>
+                            <input type="text" id="input-${item._id}" class="verify-input" placeholder="e.g. ZB123">
+                            <button class="btn-action verify-btn" onclick="finalVerify('${item._id}')">VERIFY</button>
+                        </div>
                     </div>
                 `;
             });
         }
 
-        // --- Super Logic: Join Verification ---
-        function startJoinProcess(link, linkId) {
-            const btn = document.getElementById(`btn-${linkId}`);
-            
-            // 1. WhatsApp Link එක Open කරනවා
+        // --- Logic: Join -> Show Input -> Verify ---
+        
+        function handleJoinClick(link, linkId) {
+            // 1. Open WhatsApp
             window.open(link, "_blank");
             
-            // 2. Button එක Lock කරලා Timer එක පටන් ගන්නවා
-            btn.disabled = true;
-            btn.classList.remove('join-btn', 'follow-btn');
-            btn.classList.add('wait-btn');
-            
-            let timeLeft = 10;
-            const timer = setInterval(() => {
-                btn.innerText = `WAIT ${timeLeft}s`;
-                timeLeft--;
-                
-                if (timeLeft < 0) {
-                    clearInterval(timer);
-                    // 3. Claim Button එක පෙන්වනවා
-                    btn.disabled = false;
-                    btn.innerText = "CLAIM";
-                    btn.classList.remove('wait-btn');
-                    btn.classList.add('claim-btn');
-                    btn.onclick = () => finalClaim(linkId);
-                }
-            }, 1000);
+            // 2. Show the Verification Input Box
+            document.getElementById(`verify-box-${linkId}`).style.display = 'block';
+            document.getElementById(`join-btn-${linkId}`).style.opacity = '0.5';
+            document.getElementById(`join-btn-${linkId}`).innerText = 'OPENED';
         }
 
-        async function finalClaim(linkId) {
-            const btn = document.getElementById(`btn-${linkId}`);
-            btn.innerText = "...";
-            btn.disabled = true;
+        async function finalVerify(linkId) {
+            const userCode = document.getElementById(`input-${linkId}`).value.trim();
+            if(!userCode) return alert("කරුණාකර කෝඩ් එක ඇතුළත් කරන්න!");
 
             try {
                 const res = await fetch('/api/reward', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ phone, linkId })
+                    body: JSON.stringify({ phone, linkId, userCode })
                 });
                 const data = await res.json();
+                
                 if(data.success) {
+                    alert("සාර්ථකයි! කොයින් 1ක් එකතු වුණා.");
                     document.getElementById('coinCount').innerText = data.newBalance;
-                    loadLinks(); // Refresh list to remove joined link
-                } else {
-                    alert(data.message);
                     loadLinks();
+                } else {
+                    alert(data.message || "වැරදි කෝඩ් එකක්!");
                 }
-            } catch (err) { console.error(err); }
+            } catch (err) { alert("Verification failed"); }
         }
 
         function switchTab(type) {
             currentTab = type;
             currentPage = 1;
-            searchQuery = "";
-            document.getElementById('searchInput').value = "";
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(`tab-${type}`).classList.add('active');
-            const addBtn = document.getElementById('addBtn');
-            const searchBar = document.getElementById('searchBar');
-            if(type === 'my') {
-                addBtn.style.display = 'flex';
-                searchBar.style.visibility = 'hidden'; 
-            } else {
-                addBtn.style.display = 'none';
-                searchBar.style.visibility = 'visible';
-            }
+            document.getElementById('addBtn').style.display = type === 'my' ? 'flex' : 'none';
+            document.getElementById('searchBar').style.visibility = type === 'my' ? 'hidden' : 'visible';
             loadLinks();
         }
 
@@ -297,25 +269,14 @@
         }
 
         function changePage(step) { currentPage += step; loadLinks(); }
-
-        function handleSearch() {
-            searchQuery = document.getElementById('searchInput').value;
-            currentPage = 1;
-            loadLinks();
-        }
-
+        function handleSearch() { searchQuery = document.getElementById('searchInput').value; currentPage = 1; loadLinks(); }
         async function handleDelete(linkId) {
-            if (!confirm("Remove this campaign? Unused coins won't be refunded.")) return;
-            try {
-                const res = await fetch(`/api/my-links?action=delete&id=${linkId}`);
-                const data = await res.json();
-                if (data.success) { loadLinks(); }
-            } catch (err) { alert("Delete failed"); }
+            if (!confirm("Remove this campaign?")) return;
+            const res = await fetch(`/api/my-links?action=delete&id=${linkId}`);
+            const data = await res.json();
+            if (data.success) loadLinks();
         }
-
-        function handleSignOut() {
-            if(confirm("Sign out?")) { localStorage.clear(); window.location.href = "login.html"; }
-        }
+        function handleSignOut() { if(confirm("Sign out?")) { localStorage.clear(); window.location.href = "login.html"; } }
     </script>
 </body>
 </html>
