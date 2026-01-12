@@ -72,6 +72,18 @@
         h1 { font-size: 2rem; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
         .subtitle { font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-bottom: 25px; }
 
+        /* Tabs Style */
+        .tabs { display: flex; gap: 10px; margin-bottom: 25px; justify-content: center; }
+        .tab-btn {
+            flex: 1; padding: 12px; border-radius: 15px; border: 1px solid var(--glass-border);
+            background: transparent; color: #fff; cursor: pointer; transition: 0.3s;
+            font-size: 0.9rem; font-weight: 600;
+        }
+        .tab-btn.active { 
+            background: var(--primary); color: #000; 
+            box-shadow: 0 0 15px var(--primary); border-color: var(--primary);
+        }
+
         .list-item {
             background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border);
             border-radius: 20px; padding: 15px; margin-bottom: 15px; display: flex;
@@ -121,12 +133,15 @@
     <div class="container">
         <div class="glass-card">
             <h1>DASHBOARD</h1>
-            <p class="subtitle">Join Groups and Channels to Earn Coins</p>
+            <p class="subtitle">Join and Earn Coins</p>
+
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('group', this)">Groups</button>
+                <button class="tab-btn" onclick="switchTab('channel', this)">Channels</button>
+            </div>
 
             <div id="loading" class="loader"></div>
-            
-            <div id="itemList">
-                </div>
+            <div id="itemList"></div>
         </div>
     </div>
 
@@ -138,6 +153,7 @@
 
     <script>
         const phone = localStorage.getItem('userPhone');
+        let allLinks = []; // සේරම ලින්ක්ස් ටික තියාගන්න Array එකක්
 
         window.onload = function() {
             if (!phone) {
@@ -148,7 +164,6 @@
             loadLinks();
         };
 
-        // 1. යූසර්ගේ දැනට තියෙන Coins ගාණ DB එකෙන් ගන්නවා
         async function fetchUserStats() {
             try {
                 const res = await fetch(`/api/login`, {
@@ -159,49 +174,62 @@
                 const data = await res.json();
                 if (data.success) {
                     document.getElementById('coinCount').innerText = data.coins;
-                    localStorage.setItem('coins', data.coins);
                 }
             } catch (e) { console.error("Stats error"); }
         }
 
-        // 2. Database එකේ තියෙන ලින්ක් ටික මෙතනට ගන්නවා
         async function loadLinks() {
-            const list = document.getElementById('itemList');
-            const loader = document.getElementById('loading');
-
             try {
                 const res = await fetch('/api/get-links');
                 const data = await res.json();
+                document.getElementById('loading').style.display = 'none';
 
-                loader.style.display = 'none';
-
-                if (data.success && data.links.length > 0) {
-                    list.innerHTML = '';
-                    data.links.forEach(item => {
-                        list.innerHTML += `
-                            <div class="list-item">
-                                <div class="item-info">
-                                    <span class="item-title">${item.name}</span>
-                                    <span class="item-meta">Reward: 1 Coin</span>
-                                </div>
-                                <button class="join-btn" onclick="handleJoin('${item.link}')">JOIN</button>
-                            </div>
-                        `;
-                    });
-                } else {
-                    list.innerHTML = '<p style="color:gray">No links available at the moment.</p>';
+                if (data.success) {
+                    allLinks = data.links;
+                    renderLinks('group'); // මුලින්ම Groups පෙන්නනවා
                 }
             } catch (err) {
-                loader.style.display = 'none';
-                list.innerHTML = '<p style="color:red">Failed to load links.</p>';
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('itemList').innerHTML = '<p style="color:red">Error loading links.</p>';
             }
         }
 
-        // 3. Join වුණාම Reward එක දෙන හැටි
+        function renderLinks(type) {
+            const list = document.getElementById('itemList');
+            list.innerHTML = '';
+            
+            // ලින්ක් එක chat.whatsapp නම් Group, නැත්නම් Channel ලෙස සලකමු (දැනට)
+            const filtered = allLinks.filter(item => {
+                const isGroup = item.link.includes('chat.whatsapp.com');
+                return type === 'group' ? isGroup : !isGroup;
+            });
+
+            if (filtered.length === 0) {
+                list.innerHTML = `<p style="color:gray; padding:20px;">No ${type}s available.</p>`;
+                return;
+            }
+
+            filtered.forEach(item => {
+                list.innerHTML += `
+                    <div class="list-item">
+                        <div class="item-info">
+                            <span class="item-title">${item.name}</span>
+                            <span class="item-meta">Earn 1 Coin</span>
+                        </div>
+                        <button class="join-btn" onclick="handleJoin('${item.link}')">JOIN</button>
+                    </div>
+                `;
+            });
+        }
+
+        function switchTab(type, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderLinks(type);
+        }
+
         async function handleJoin(link) {
             window.open(link, "_blank");
-
-            // සර්වර් එකට දැනුම් දෙනවා යූසර් ලින්ක් එක ක්ලික් කළා කියලා
             try {
                 const res = await fetch('/api/reward', {
                     method: 'POST',
@@ -211,9 +239,9 @@
                 const data = await res.json();
                 if(data.success) {
                     document.getElementById('coinCount').innerText = data.newBalance;
-                    alert("Reward: 1 Coin Added!");
+                    alert("Success: 1 Coin earned!");
                 }
-            } catch (err) { alert("Reward processing failed."); }
+            } catch (err) { alert("Reward failed."); }
         }
 
         function handleSignOut() {
