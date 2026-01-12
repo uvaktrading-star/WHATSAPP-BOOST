@@ -12,6 +12,14 @@
     {
       "source": "/api/add-link",
       "destination": "/api/add-link.js"
+    },
+    {
+      "source": "/api/get-links",
+      "destination": "/api/get-links.js"
+    },
+    {
+      "source": "/api/reward",
+      "destination": "/api/reward.js"
     }
   ],
   "headers": [
@@ -25,4 +33,3 @@
     }
   ]
 }
-
