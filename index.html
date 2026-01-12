@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZANTA BOOST | Boost Your Groups & Channels</title>
+    <title>ZANTA BOOST | Dashboard</title>
     
-    <script type='text/javascript' src='//pl28408717.effectivegatecpm.com/00/6e/30/006e304b5ab96fb51a608263d55d1a7e.js'></script>
-
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
@@ -37,16 +35,6 @@
             background: radial-gradient(circle at center, #0a1a2d 0%, #000 100%);
         }
 
-        .star {
-            position: absolute; background: #b6e3ff; border-radius: 50%; opacity: 0.5;
-            animation: move linear infinite;
-        }
-
-        @keyframes move {
-            from { transform: translateY(100vh); opacity: 0; }
-            to { transform: translateY(-10vh); opacity: 0.8; }
-        }
-
         header {
             width: 100%; padding: 15px 20px; display: flex; justify-content: space-between;
             align-items: center; position: fixed; top: 0; z-index: 100;
@@ -64,15 +52,12 @@
 
         .coin-display i { color: #ffd700; }
 
-        /* ✨ Sign Out Button Style */
         .signout-btn {
             background: rgba(255, 75, 43, 0.1); border: 1px solid var(--danger);
             color: var(--danger); width: 35px; height: 35px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; transition: 0.3s;
         }
-
-        .signout-btn:hover { background: var(--danger); color: #fff; box-shadow: 0 0 15px var(--danger); }
 
         .container {
             width: 95%; max-width: 600px; margin: 100px auto 140px auto;
@@ -82,29 +67,10 @@
         .glass-card {
             background: var(--glass); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
             border: 1px solid var(--glass-border); border-radius: 30px; padding: 30px 20px;
-            box-shadow: 0 15px 35px rgba(0, 191, 255, 0.05);
         }
 
         h1 { font-size: 2rem; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
         .subtitle { font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-bottom: 25px; }
-
-        .search-box {
-            width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
-            padding: 12px 20px; border-radius: 15px; color: #fff; margin-bottom: 20px; outline: none;
-        }
-
-        .tabs { display: flex; gap: 10px; margin-bottom: 25px; justify-content: center; }
-
-        .tab-btn {
-            flex: 1; padding: 12px; border-radius: 15px; border: 1px solid var(--glass-border);
-            background: transparent; color: #fff; cursor: pointer; transition: 0.3s;
-            font-size: 0.9rem; font-weight: 600;
-        }
-
-        .tab-btn.active { 
-            background: var(--primary); color: #000; 
-            box-shadow: 0 0 15px var(--primary); border-color: var(--primary);
-        }
 
         .list-item {
             background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border);
@@ -118,29 +84,21 @@
 
         .join-btn {
             background: var(--primary); color: #000; padding: 8px 20px; border-radius: 20px;
-            text-decoration: none; font-size: 0.85rem; font-weight: 700; cursor: pointer;
+            text-decoration: none; font-size: 0.85rem; font-weight: 700; cursor: pointer; border: none;
         }
 
         .floating-controls {
             position: fixed; bottom: 85px; right: 20px; display: flex; flex-direction: column; gap: 15px; z-index: 200;
         }
 
-        .fab-main, .fab-contact {
+        .fab-main {
             width: 55px; height: 55px; border-radius: 50%; display: flex;
             justify-content: center; align-items: center; color: #000; font-size: 1.4rem;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3); cursor: pointer; transition: 0.3s; text-decoration: none;
+            background: var(--primary); box-shadow: 0 0 20px var(--primary); cursor: pointer;
         }
 
-        .fab-main { background: var(--primary); box-shadow: 0 0 20px var(--primary); }
-        .fab-contact { background: var(--whatsapp); color: #fff; box-shadow: 0 0 20px var(--whatsapp); }
-
-        .fixed-bottom-ad {
-            position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1000;
-            background: rgba(0,0,0,0.8); display: flex; justify-content: center; padding: 10px 0;
-            border-top: 1px solid var(--glass-border);
-        }
-
-        @media (max-width: 600px) { h1 { font-size: 1.6rem; } .container { margin-top: 80px; } }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -150,119 +108,118 @@
     <header>
         <div style="font-weight: 600; color: var(--primary);">ZANTA BOOST</div>
         <div class="nav-right">
-            <div class="signout-btn" onclick="handleSignOut()" title="Sign Out">
+            <div class="signout-btn" onclick="handleSignOut()">
                 <i class="fas fa-sign-out-alt"></i>
             </div>
             <div class="coin-display" onclick="location.reload()">
                 <i class="fas fa-coins"></i>
-                <span id="coinCount">...</span>
+                <span id="coinCount">0</span>
             </div>
         </div>
     </header>
 
     <div class="container">
         <div class="glass-card">
-            <h1>ZANTA BOOST</h1>
-            <p class="subtitle">Join Groups & Earn Coins to Promote Yours</p>
+            <h1>DASHBOARD</h1>
+            <p class="subtitle">Join Groups and Channels to Earn Coins</p>
 
-            <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('group', this)">Groups</button>
-                <button class="tab-btn" onclick="switchTab('channel', this)">Channels</button>
-            </div>
-
-            <input type="text" class="search-box" placeholder="Search..." id="searchBar">
-
+            <div id="loading" class="loader"></div>
+            
             <div id="itemList">
-                <div class="list-item" data-type="group">
-                    <div class="item-info">
-                        <span class="item-title">SL Tech Community</span>
-                        <span class="item-meta">Earn 10 Coins</span>
-                    </div>
-                    <a class="join-btn" onclick="handleJoin('https://chat.whatsapp.com/sample', 10)">JOIN</a>
                 </div>
-            </div>
         </div>
     </div>
 
     <div class="floating-controls">
-        <a href="https://wa.me/94XXXXXXXXX" class="fab-contact" target="_blank">
-            <i class="fab fa-whatsapp"></i>
-        </a>
         <div class="fab-main" onclick="window.location.href='add.html'">
             <i class="fas fa-plus"></i>
         </div>
     </div>
 
-    <div class="fixed-bottom-ad"></div>
-
     <script>
-        window.onload = function() {
-            const user = localStorage.getItem('userPhone');
-            const coins = localStorage.getItem('coins');
+        const phone = localStorage.getItem('userPhone');
 
-            if (!user) {
+        window.onload = function() {
+            if (!phone) {
                 window.location.href = "login.html";
-            } else {
-                document.getElementById('coinCount').innerText = coins || 0;
+                return;
             }
-            createStars();
+            fetchUserStats();
+            loadLinks();
         };
 
-        // --- 🚪 Sign Out Function ---
-        function handleSignOut() {
-            if(confirm("Are you sure you want to sign out?")) {
-                localStorage.removeItem('userPhone');
-                localStorage.removeItem('coins');
-                window.location.href = "login.html";
-            }
+        // 1. යූසර්ගේ දැනට තියෙන Coins ගාණ DB එකෙන් ගන්නවා
+        async function fetchUserStats() {
+            try {
+                const res = await fetch(`/api/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone, autoLogin: true }) 
+                });
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('coinCount').innerText = data.coins;
+                    localStorage.setItem('coins', data.coins);
+                }
+            } catch (e) { console.error("Stats error"); }
         }
 
-        async function handleJoin(link, reward) {
-            const phone = localStorage.getItem('userPhone');
-            if(!phone) return window.location.href = "login.html";
-
-            window.open(link, "_blank");
+        // 2. Database එකේ තියෙන ලින්ක් ටික මෙතනට ගන්නවා
+        async function loadLinks() {
+            const list = document.getElementById('itemList');
+            const loader = document.getElementById('loading');
 
             try {
-                let currentCoins = parseInt(localStorage.getItem('coins')) || 0;
-                let newTotal = currentCoins + reward;
-                localStorage.setItem('coins', newTotal);
-                document.getElementById('coinCount').innerText = newTotal;
-                alert("Processing Reward... 10 Coins added!");
+                const res = await fetch('/api/get-links');
+                const data = await res.json();
+
+                loader.style.display = 'none';
+
+                if (data.success && data.links.length > 0) {
+                    list.innerHTML = '';
+                    data.links.forEach(item => {
+                        list.innerHTML += `
+                            <div class="list-item">
+                                <div class="item-info">
+                                    <span class="item-title">${item.name}</span>
+                                    <span class="item-meta">Reward: 1 Coin</span>
+                                </div>
+                                <button class="join-btn" onclick="handleJoin('${item.link}')">JOIN</button>
+                            </div>
+                        `;
+                    });
+                } else {
+                    list.innerHTML = '<p style="color:gray">No links available at the moment.</p>';
+                }
             } catch (err) {
-                console.error("Coin update failed");
+                loader.style.display = 'none';
+                list.innerHTML = '<p style="color:red">Failed to load links.</p>';
             }
         }
 
-        function switchTab(type, btn) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            const items = document.querySelectorAll('.list-item');
-            items.forEach(item => {
-                item.style.display = item.getAttribute('data-type') === type ? "flex" : "none";
-            });
+        // 3. Join වුණාම Reward එක දෙන හැටි
+        async function handleJoin(link) {
+            window.open(link, "_blank");
+
+            // සර්වර් එකට දැනුම් දෙනවා යූසර් ලින්ක් එක ක්ලික් කළා කියලා
+            try {
+                const res = await fetch('/api/reward', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone: phone })
+                });
+                const data = await res.json();
+                if(data.success) {
+                    document.getElementById('coinCount').innerText = data.newBalance;
+                    alert("Reward: 1 Coin Added!");
+                }
+            } catch (err) { alert("Reward processing failed."); }
         }
 
-        document.getElementById('searchBar').addEventListener('keyup', function() {
-            let filter = this.value.toUpperCase();
-            let items = document.querySelectorAll('.list-item');
-            items.forEach(item => {
-                let text = item.querySelector('.item-title').innerText;
-                item.style.display = text.toUpperCase().includes(filter) ? "flex" : "none";
-            });
-        });
-
-        function createStars() {
-            const starsContainer = document.getElementById('stars');
-            for (let i = 0; i < 60; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                const size = Math.random() * 2 + 'px';
-                star.style.width = size; star.style.height = size;
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                star.style.animationDuration = Math.random() * 5 + 5 + 's';
-                starsContainer.appendChild(star);
+        function handleSignOut() {
+            if(confirm("Sign out?")) {
+                localStorage.clear();
+                window.location.href = "login.html";
             }
         }
     </script>
