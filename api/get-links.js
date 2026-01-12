@@ -4,13 +4,15 @@ if (!mongoose.connections[0].readyState) {
     mongoose.connect(process.env.MONGODB_URI);
 }
 
+// 1. Schema එකට verificationCode ෆීල්ඩ් එක එකතු කළා (Security එකට මේක අවශ්‍යයි)
 const GroupSchema = new mongoose.Schema({
     name: String,
     link: String,
     budget: Number,
     owner: String,
     tags: { type: [String], default: [] },
-    type: { type: String, enum: ['group', 'channel'] }, // මේක අනිවාර්යයි
+    type: { type: String, enum: ['group', 'channel'] },
+    verificationCode: String, // මෙතනටත් එකතු කළා
     joinedUsers: { type: [String], default: [] },
     createdAt: { type: Date, default: Date.now }
 });
@@ -21,33 +23,30 @@ export default async function handler(req, res) {
     if (req.method !== 'GET') return res.status(405).send('Method not allowed');
 
     try {
-        const { phone, page = 1, search = "", tab = "group" } = req.query; // 'tab' එකත් ගමු
+        const { phone, page = 1, search = "", tab = "group" } = req.query;
         const limit = 10;
         const skip = (parseInt(page) - 1) * limit;
 
-        // 1. මූලික ෆිල්ටර් (තමන්ගේ නොවන, ජොයින් නොවූ, සහ අදාළ ටැබ් එකට ගැලපෙන ඒවා)
+        // මූලික ෆිල්ටර්
         let query = {
             joinedUsers: { $ne: String(phone) },
             owner: { $ne: String(phone) },
-            type: tab // 'group' හෝ 'channel' අනුව filter වෙනවා
+            type: tab,
+            budget: { $gt: 0 } // බජට් එක ඉවර වෙච්ච ලින්ක් පෙන්වන්න එපා
         };
 
-        // 2. සර්ච් එකක් තිබේ නම්
+        // සර්ච් එකක් තිබේ නම්
         if (search) {
-            query.$and = [
-                { joinedUsers: { $ne: String(phone) } },
-                { owner: { $ne: String(phone) } },
-                { type: tab },
-                {
-                    $or: [
-                        { name: { $regex: search, $options: 'i' } },
-                        { tags: { $in: [new RegExp(search, 'i')] } }
-                    ]
-                }
+            query.$or = [
+                { name: { $regex: search, $options: 'i' } },
+                { tags: { $in: [new RegExp(search, 'i')] } }
             ];
         }
 
+        // 2. මෙතනදී .select('-verificationCode') දාලා තියෙන්නේ ආරක්ෂාවට. 
+        // එතකොට Frontend එකට මේ කෝඩ් එක යන්නේ නැහැ.
         const links = await Group.find(query)
+            .select('-verificationCode') 
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);
