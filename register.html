@@ -81,7 +81,7 @@
 </head>
 <body>
 
-    <div class="stars-container"></div>
+    <div class="stars-container" id="stars"></div>
 
     <div class="login-card">
         <h1>GET STARTED</h1>
@@ -97,7 +97,7 @@
             <input type="password" id="pass" placeholder="Create Password">
         </div>
 
-        <button class="auth-btn" onclick="handleAuth()">REGISTER</button>
+        <button class="auth-btn" id="regBtn" onclick="handleAuth()">REGISTER</button>
 
         <p class="footer-text">
             Already have an account? <a href="login.html">Login</a>
@@ -105,21 +105,45 @@
     </div>
 
     <script>
+        // --- 1. Background Stars ---
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 50; i++) {
+            const star = document.createElement('div');
+            star.style.position = 'absolute';
+            star.style.background = '#fff';
+            star.style.width = '2px';
+            star.style.height = '2px';
+            star.style.borderRadius = '50%';
+            star.style.opacity = Math.random();
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            starsContainer.appendChild(star);
+        }
+
+        // --- 2. Registration Logic ---
         async function handleAuth() {
             const phone = document.getElementById('phone').value;
             const password = document.getElementById('pass').value;
+            const btn = document.getElementById('regBtn');
 
+            // Validation
             if(!phone || !password) {
                 alert("Please fill all fields!");
                 return;
             }
 
-            const btn = document.querySelector('.auth-btn');
-            btn.innerText = "Processing...";
+            if(phone.length < 10) {
+                alert("Please enter a valid phone number!");
+                return;
+            }
+
+            // UI Update
+            btn.innerText = "Creating Account...";
             btn.disabled = true;
 
             try {
-                const res = await fetch('/api/auth', {
+                // සටහන: අපි මෙතන Fetch කරන්නේ අලුත් /api/register කියන එකට
+                const res = await fetch('/api/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ phone, password })
@@ -128,16 +152,16 @@
                 const data = await res.json();
 
                 if(data.success) {
-                    alert("Registration Successful! Please login.");
-                    // ✅ Redirecting to login.html as requested
-                    window.location.href = "login.html";
+                    alert("Registration Successful! Now you can Login.");
+                    window.location.href = "login.html"; // කෙලින්ම ලොගින් පේජ් එකට
                 } else {
-                    alert(data.message);
+                    alert(data.message || "Registration Failed!");
                     btn.innerText = "REGISTER";
                     btn.disabled = false;
                 }
             } catch (err) {
-                alert("Server error! Please try again.");
+                console.error(err);
+                alert("Network error! Make sure your backend is running.");
                 btn.innerText = "REGISTER";
                 btn.disabled = false;
             }
