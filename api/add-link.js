@@ -1,17 +1,17 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 // DB Connection
 if (!mongoose.connections[0].readyState) {
     mongoose.connect(process.env.MONGODB_URI);
 }
 
-// Group Schema (දත්ත ගබඩා වන හැටි)
+// Group Schema (අපි මෙතනට joinedUsers එකතු කළා)
 const GroupSchema = new mongoose.Schema({
     name: { type: String, required: true },
     link: { type: String, required: true },
     budget: { type: Number, required: true },
-    owner: { type: String, required: true }, // ලින්ක් එක දැම්ම කෙනාගේ phone number එක
-    clicks: { type: Number, default: 0 },
+    owner: { type: String, required: true },
+    joinedUsers: { type: [String], default: [] }, // මේක අනිවාර්යයෙන්ම ඕනේ!
     createdAt: { type: Date, default: Date.now }
 });
 
@@ -45,7 +45,8 @@ export default async function handler(req, res) {
             name,
             link,
             budget,
-            owner: phone
+            owner: phone,
+            joinedUsers: [] // මුලින්ම හිස් ලිස්ට් එකක් විදිහට සේව් වෙනවා
         });
         await newGroup.save();
 
