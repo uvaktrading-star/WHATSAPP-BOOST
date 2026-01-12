@@ -10,66 +10,73 @@ const User = mongoose.models.User || mongoose.model('User', new mongoose.Schema(
     coins: { type: Number, default: 0 }
 }));
 
-// Group Model
+// Group Model (Schema එකට verificationCode එකතු කළා)
 const Group = mongoose.models.Group || mongoose.model('Group', new mongoose.Schema({
     name: String,
     link: String,
     budget: Number,
     owner: String,
+    verificationCode: String, // අනිවාර්යයෙන්ම තිබිය යුතුයි
     joinedUsers: { type: [String], default: [] }
 }));
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ message: 'Method not allowed' });
 
-    const { phone, linkId, startTime } = req.body; // startTime එක frontend එකෙන් එවනවා නම් වඩාත් ආරක්ෂිතයි
+    // 1. Frontend එකෙන් එවන දත්ත ලබා ගැනීම (userCode එකත් එක්ක)
+    const { phone, linkId, userCode } = req.body; 
 
-    if (!phone || !linkId) {
-        return res.status(400).json({ success: false, message: "Missing data" });
+    if (!phone || !linkId || !userCode) {
+        return res.status(400).json({ success: false, message: "දත්ත අසම්පූර්ණයි!" });
     }
 
     try {
-        // 1. අදාළ ලින්ක් එක සොයාගැනීම
+        // 2. අදාළ ලින්ක් එක සොයාගැනීම
         const group = await Group.findById(linkId);
         if (!group) {
-            return res.status(404).json({ success: false, message: "Link expired or not found" });
+            return res.status(404).json({ success: false, message: "මෙම ලින්ක් එක දැන් වලංගු නැත!" });
         }
 
-        // 2. Security Check: යූසර් දැනටමත් මේ ගෲප් එකට ජොයින් වෙලාද?
+        // 3. වැදගත්ම දේ: Verification Code එක චෙක් කිරීම
+        // Advertiser දුන්න Code එකයි, User ගහපු Code එකයි සමානද බලනවා
+        if (group.verificationCode.trim().toLowerCase() !== userCode.trim().toLowerCase()) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "වැරදි මුරපදයක්! කරුණාකර නැවත උත්සාහ කරන්න." 
+            });
+        }
+
+        // 4. Security Check: යූසර් දැනටමත් මේ ගෲප් එකට ජොයින් වෙලා reward එක අරන්ද?
         if (group.joinedUsers && group.joinedUsers.includes(String(phone))) {
-            return res.status(400).json({ success: false, message: "You have already joined this group!" });
+            return res.status(400).json({ success: false, message: "ඔබ දැනටමත් මෙයට සම්බන්ධ වී කොයින් ලබාගෙන ඇත!" });
         }
 
-        // 3. කොයින්ස් ගන්නා යූසර්ව සොයාගැනීම
+        // 5. කොයින්ස් ගන්නා යූසර්ව සොයාගැනීම
         const user = await User.findOne({ phone: String(phone) });
         if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
-        // 4. (Optional) Time Verification
-        // මෙතනදී ඇත්තටම සර්වර් එකේ logic එකෙන් යූසර්ව track කරන්න පුළුවන්. 
-        // දැනට අපි frontend එකේ තත්පර 10 delay එක විශ්වාස කරලා reward එක දෙනවා.
-
-        // 5. Reward එක දෙනවා සහ Budget එක අඩු කරනවා
+        // 6. Reward එක දෙනවා සහ Budget එක අඩු කරනවා
         group.budget -= 1;
         
-        // යූසර්ගේ පෝන් නම්බර් එක joinedUsers array එකට එකතු කරනවා
+        // යූසර්ගේ පෝන් නම්බර් එක joinedUsers array එකට එකතු කරනවා (දෙපාරක් කොයින් දීම වැලැක්වීමට)
         if (!group.joinedUsers) group.joinedUsers = [];
         group.joinedUsers.push(String(phone));
 
-        // 6. Budget එක 0 වුණොත් ලින්ක් එක මකනවා, නැත්නම් Save කරනවා
+        // 7. Budget එක 0 වුණොත් ලින්ක් එක මකනවා, නැත්නම් Save කරනවා
         if (group.budget <= 0) {
             await Group.findByIdAndDelete(linkId);
         } else {
             await group.save();
         }
 
-        // 7. යූසර්ගේ Balance එක අප්ඩේට් කරනවා (+1 Coin)
+        // 8. යූසර්ගේ Balance එකට +1 Coin එකතු කරනවා
         user.coins = (user.coins || 0) + 1;
         await user.save();
 
         return res.status(200).json({ 
             success: true, 
             newBalance: user.coins,
-            message: "Success! 1 Coin added to your account."
+            message: "සාර්ථකයි! ඔබට කොයින් 1ක් එකතු වුණා."
         });
 
     } catch (error) {
