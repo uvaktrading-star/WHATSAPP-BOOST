@@ -7,9 +7,20 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --primary: #00d4ff; --bg-dark: #000; --glass: rgba(255, 255, 255, 0.05); --warning: #ffd700; }
+        :root { --primary: #00d4ff; --bg-dark: #000; --glass: rgba(255, 255, 255, 0.05); --warning: #ffd700; --overlay: rgba(0, 0, 0, 0.8); }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: var(--bg-dark); color: #fff; font-family: 'Poppins', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+        body { background: var(--bg-dark); color: #fff; font-family: 'Poppins', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; overflow-x: hidden; }
+        
+        /* Modal Style */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--overlay); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 1000; opacity: 0; transition: 0.3s; }
+        .modal-card { background: #111; border: 1px solid var(--primary); padding: 30px; border-radius: 25px; max-width: 400px; width: 90%; text-align: center; transform: scale(0.8); transition: 0.3s; }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-overlay.active .modal-card { transform: scale(1); }
+        .modal-icon { font-size: 3rem; color: var(--warning); margin-bottom: 15px; }
+        .modal-card h3 { color: #fff; margin-bottom: 10px; }
+        .modal-card p { font-size: 0.85rem; color: #ccc; line-height: 1.6; margin-bottom: 20px; }
+        .modal-btn { background: var(--primary); color: #000; padding: 10px 30px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; }
+
         .container { width: 100%; max-width: 450px; background: var(--glass); padding: 30px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); }
         h2 { color: var(--primary); text-align: center; margin-bottom: 25px; font-weight: 600; letter-spacing: 1px; }
         .input-group { margin-bottom: 18px; }
@@ -17,7 +28,6 @@
         input, select { width: 100%; padding: 12px 15px; border-radius: 12px; border: 1px solid #333; background: rgba(0,0,0,0.3); color: #fff; outline: none; font-size: 0.9rem; transition: 0.3s; }
         input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 10px rgba(0, 212, 255, 0.2); }
         
-        /* New Style for Verification Input */
         .verification-input { border: 1px dashed var(--warning) !important; color: var(--warning) !important; font-weight: bold; }
         
         .btn { width: 100%; padding: 15px; background: var(--primary); color: #000; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; margin-top: 15px; font-size: 1rem; transition: 0.3s; }
@@ -30,6 +40,15 @@
     </style>
 </head>
 <body>
+
+    <div class="modal-overlay" id="customModal">
+        <div class="modal-card">
+            <div class="modal-icon"><i class="fas fa-exclamation-triangle"></i></div>
+            <h3>වැදගත් උපදෙස්!</h3>
+            <p>ඔබ ඔබේ Group/Channel එක තුළ යම්කිසි මුරපදයක් (Verification Code) ඇතුළත් කර, එම මුරපදයම මෙහි ඇතුළත් කිරීම අනිවාර්ය වේ. නැතහොත් පරිශීලකයින්ට එය තහවුරු කිරීමට නොහැකි වනු ඇත.</p>
+            <button class="modal-btn" onclick="closeModal()">පිළිගන්නවා</button>
+        </div>
+    </div>
 
     <div class="container">
         <h2>🚀 BOOST LINK</h2>
@@ -79,12 +98,22 @@
     </div>
 
     <script>
-        // පේජ් එක ලෝඩ් වෙද්දී එන පණිවිඩය
+        // Modal Logic
         window.onload = function() {
+            const modal = document.getElementById('customModal');
+            modal.style.display = 'flex';
             setTimeout(() => {
-                alert("අවධානයට:\n\nඔබ ඔබේ Group/Channel එක තුළ යම්කිසි මුරපදයක් (Verification Code) ඇතුළත් කර, එම මුරපදයම මෙහි ඇතුළත් කිරීම අනිවාර්ය වේ. නැතහොත් පරිශීලකයින්ට එය තහවුරු කිරීමට නොහැකි වනු ඇත.");
-            }, 500);
+                modal.classList.add('active');
+            }, 100);
         };
+
+        function closeModal() {
+            const modal = document.getElementById('customModal');
+            modal.classList.remove('active');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
 
         async function submitLink() {
             const type = document.getElementById('linkType').value;
@@ -96,7 +125,7 @@
             const phone = localStorage.getItem('userPhone');
 
             if(!name || !link || !verificationCode) {
-                return alert("Please fill all required fields, including the Verification Code!");
+                return alert("Please fill all required fields!");
             }
 
             const btn = document.getElementById('submitBtn');
@@ -110,7 +139,7 @@
                     body: JSON.stringify({ 
                         name, 
                         link, 
-                        verificationCode, // මෙන්න මේක සර්වර් එකට යවනවා
+                        verificationCode,
                         tags,
                         type, 
                         budget: parseInt(packageVal), 
