@@ -17,6 +17,7 @@
         input:focus, select:focus { border-color: var(--primary); }
         .btn { width: 100%; padding: 15px; background: var(--primary); color: #000; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; margin-top: 10px; }
         .back-btn { display: block; text-align: center; margin-top: 15px; color: #777; text-decoration: none; font-size: 0.9rem; }
+        .tag-hint { font-size: 0.75rem; color: #666; margin-top: 3px; }
         option { background: #111; }
     </style>
 </head>
@@ -33,6 +34,12 @@
         <div class="input-group">
             <label>WhatsApp/Telegram Link</label>
             <input type="url" id="groupLink" placeholder="https://chat.whatsapp.com/...">
+        </div>
+
+        <div class="input-group">
+            <label>Tags (Optional)</label>
+            <input type="text" id="tags" placeholder="e.g. funny, tech, jobs, movies">
+            <p class="tag-hint">Comma ( , ) මගින් වෙන් කර ඇතුළත් කරන්න.</p>
         </div>
 
         <div class="input-group">
@@ -53,6 +60,7 @@
         async function submitLink() {
             const name = document.getElementById('groupName').value;
             const link = document.getElementById('groupLink').value;
+            const tags = document.getElementById('tags').value; // Tags අගය ගන්නවා
             const packageVal = document.getElementById('package').value;
             const phone = localStorage.getItem('userPhone');
 
@@ -69,6 +77,7 @@
                     body: JSON.stringify({ 
                         name, 
                         link, 
+                        tags, // Tags සර්වර් එකට යවනවා
                         budget: parseInt(packageVal), 
                         phone 
                     })
